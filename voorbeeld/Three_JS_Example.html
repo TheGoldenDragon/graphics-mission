@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Tryout Project</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+			body {
+				width: 100%;
+				height: 100%;
+				margin: 0px;
+			}
+		</style>
+	</head>
+	<body>
+
+		<script src="js/three.min.js"></script>
+		<script src="js/SpotLight.js"></script>
+		<script src="js/FirstPersonControls.js"></script>
+
+		<script>
+			var scene = new THREE.Scene();
+			
+			var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+			
+			var renderer = new THREE.WebGLRenderer();
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			renderer.setClearColor(0x000000);
+			document.body.appendChild(renderer.domElement);
+			
+			var cGeometry = new THREE.BoxGeometry(1,1,1);			
+			var cMaterial = new THREE.MeshPhongMaterial( { color:0xf0f0f0 } );
+			var cube = new THREE.Mesh(cGeometry,cMaterial);
+			
+			var poolGeometry = new THREE.BoxGeometry(20,2,40);
+			var poolMaterial = new THREE.MeshPhongMaterial( {color:0x07A127 });
+			var pooltable = new THREE.Mesh(poolGeometry,poolMaterial);
+			
+			
+			
+			cube.position.z = -15;
+			
+			scene.add(cube);
+			
+			var cGroup = new THREE.Group();
+			scene.add(cGroup);
+			
+			var lGeometry = new THREE.BoxGeometry(1,1,6);
+			//var lMaterial = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+			var lMaterial = new THREE.MeshPhongMaterial( { color: 0x00ff00 } );
+			var longCube = new THREE.Mesh(lGeometry,lMaterial);
+			
+			longCube.position.z = -15;
+			longCube.position.x = -15;
+			
+			//scene.add(longCube);
+			cGroup.add(longCube);
+			
+			var clonedLongCube = longCube.clone();
+			clonedLongCube.position.x = 15;
+			
+			//scene.add(clonedLongCube);
+			cGroup.add(clonedLongCube);
+			
+			//var groundMaterial = new THREE.MeshBasicMaterial( { color: 0xf0f0f0 } );
+			var groundMaterial = new THREE.MeshPhongMaterial( { color: 0xf0f0f0 } );
+			
+			var ground = new THREE.Mesh( new THREE.PlaneBufferGeometry(100,100,2,2), groundMaterial);
+			ground.position.y = -2;
+			ground.rotation.x = - Math.PI / 2;
+			scene.add(ground);
+			
+			var raycaster = new THREE.Raycaster();
+			
+			var cubeDirection = new THREE.Vector3();
+			cubeDirection.x = -1;
+			cubeDirection.normalize();
+			
+			var speed = new THREE.Vector3();
+			
+			var clock = new THREE.Clock();
+			
+			//var blueMaterial = new THREE.MeshBasicMaterial( { color: 0x0040ff } );
+			var blueMaterial = new THREE.MeshPhongMaterial( { color: 0x0040ff } );
+			//var greenMaterial = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+			var greenMaterial = new THREE.MeshPhongMaterial( { color: 0x00ff00 } );
+
+			
+			var rotationPerFrame = 0.05;
+			var rotationVector = new THREE.Vector3(rotationPerFrame,rotationPerFrame,rotationPerFrame);
+			
+			//scene.add(new THREE.AmbientLight(0xf0f0f0));
+			scene.add( new THREE.AmbientLight(0x111111));
+			
+			var sphere = new THREE.SphereGeometry(0.5, 16, 8);
+			
+			var light1 = new THREE.PointLight(0xff0040, 1.5, 100);
+			light1.add(new THREE.Mesh(sphere, new THREE.MeshBasicMaterial( { color: 0xff0040 } )));
+			light1.position.set(0, 4, -15);
+			scene.add(light1);
+			
+			var light2 = new THREE.PointLight(0xf0f0f0, 0.5, 100);
+			light2.add(new THREE.Mesh(sphere, new THREE.MeshBasicMaterial( { color: 0xf0f0f0 } )));
+			light2.position.set(-15, 4, -15);
+			scene.add(light2);
+			
+			var light3 = new THREE.PointLight(0xf0f0f0, 0.5, 100);
+			light3.add(new THREE.Mesh(sphere, new THREE.MeshBasicMaterial( { color: 0xf0f0f0 } )));
+			light3.position.set(15, 4, -15);
+			scene.add(light3);
+
+			
+			function render() {
+				requestAnimationFrame(render);
+				
+				cube.rotation.setFromVector3(cube.rotation.toVector3().add(rotationVector));
+				
+				cube.position.add(speed.copy(cubeDirection).multiplyScalar(clock.getDelta()*20));
+				
+				raycaster.set(cube.position, cubeDirection);
+				
+				var intersections = raycaster.intersectObjects(cGroup.children);
+				
+				if(intersections.length > 0) {
+					var intersection = intersections[0];
+					
+					if(intersection.distance < 2) {
+						cubeDirection.reflect(intersection.face.normal);
+					}
+				}
+				
+				
+				for (var name in cGroup.children) {
+					var currentElement = cGroup.children[name];
+					currentElement.material = blueMaterial;
+				}
+
+				raycaster.setFromCamera(mouse, camera);
+				
+				var mouseIntersections = raycaster.intersectObjects(cGroup.children);
+				
+				if (mouseIntersections.length > 0) {
+					var intersection = mouseIntersections[0];
+					
+					intersection.object.material = greenMaterial;
+				}
+
+				
+				renderer.render(scene,camera);
+			}
+			
+			var mouse = new THREE.Vector2();
+			
+			document.addEventListener('mousemove', onDocumentMouseMove, false);
+			
+			function onDocumentMouseMove(event) {
+				
+				event.preventDefault();
+				
+				mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+				mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+			}
+			
+			camera.position.y = 10;
+			camera.lookAt(cube.position);
+			camera.updateProjectionMatrix();
+			
+			render();
+		</script>
+	</body>
+</html>
