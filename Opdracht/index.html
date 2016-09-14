@@ -88,6 +88,17 @@
 			light1.add(new THREE.Mesh(sphere, new THREE.MeshBasicMaterial( { color: 0xf0f0f0 } )));
 			light1.position.set(0, 8, 8);
 			scene.add(light1);
+						
+			//cue
+			var cueGeometry = new THREE.CylinderGeometry(0.1,0.4,30);
+			var cueColor = new THREE.MeshBasicMaterial( { color: 0xb88b45 } );
+			var cue = new THREE.Mesh(cueGeometry,cueColor);
+			
+			camera.add(cue);
+			cue.lookAt(poolGroup.position);
+			cue.position.set(0,0,-10);
+			cue.position.applyMatrix4( camera.matrixWorld );
+			
 			
 			
 			
@@ -116,12 +127,17 @@
 				mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
 			}
 			
+			
+			
+			
+			
+			
 			//Camere positioning
 			camera.position.y = 5;
 			camera.position.x = 30;
 			camera.position.z = 0;
 			camera.lookAt(poolGroup.position);
-			
+			scene.add(camera);
 			render();
 		</script>
 </body>
