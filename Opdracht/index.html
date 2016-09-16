@@ -45,32 +45,32 @@
         //pooltable color
         var poolMaterial = new THREE.MeshPhongMaterial({ color: 0x07A127 });
         //Borders of the pooltable
-        var b1Geometry = new THREE.BoxGeometry(21, 1, 1);
+        var b1Geometry = new THREE.BoxGeometry(42, 2, 2);
         var b1 = new THREE.Mesh(b1Geometry, poolMaterial);
         b1.position.x = 0;
-        b1.position.y = 0.2;
-        b1.position.z = 20;
+        b1.position.y = 0.5;
+        b1.position.z = 40;
         poolGroup.add(b1);
-        var b2Geometry = new THREE.BoxGeometry(21, 1, 1);
+        var b2Geometry = new THREE.BoxGeometry(42, 2, 2);
         var b2 = new THREE.Mesh(b2Geometry, poolMaterial);
         b2.position.x = 0;
-        b2.position.y = 0.2;
-        b2.position.z = -20;
+        b2.position.y = 0.5;
+        b2.position.z = -40;
         poolGroup.add(b2);
-        var b3Geometry = new THREE.BoxGeometry(1, 1, 40);
+        var b3Geometry = new THREE.BoxGeometry(2, 2, 80);
         var b3 = new THREE.Mesh(b3Geometry, poolMaterial);
-        b3.position.x = 10;
-        b3.position.y = 0.2;
+        b3.position.x = 20;
+        b3.position.y = 0.5;
         b3.position.z = 0;
         poolGroup.add(b3);
-        var b4Geometry = new THREE.BoxGeometry(1, 1, 40);
+        var b4Geometry = new THREE.BoxGeometry(2, 2, 80);
         var b4 = new THREE.Mesh(b4Geometry, poolMaterial);
-        b4.position.x = -10;
-        b4.position.y = 0.2;
+        b4.position.x = -20;
+        b4.position.y = 0.5;
         b4.position.z = 0;
         poolGroup.add(b4);
         //Pooltable
-        var poolGeometry = new THREE.BoxGeometry(20, 0.5, 40);
+        var poolGeometry = new THREE.BoxGeometry(40, 1, 80);
         var pooltable = new THREE.Mesh(poolGeometry, poolMaterial);
         pooltable.position.x = 0;
         pooltable.position.y = 0;
@@ -103,29 +103,130 @@
         var cueGeometry = new THREE.CylinderGeometry(0.1, 0.4, 30);
         var cueColor = new THREE.MeshBasicMaterial({ color: 0xb88b45 });
         var cue = new THREE.Mesh(cueGeometry, cueColor);
-
+		
+		//Balls
+		//White ball
+		var BallGeometry = new THREE.SphereGeometry(1,10,10);
+		var wbMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+		var whiteball= new THREE.Mesh(BallGeometry,wbMaterial);
+		whiteball.position.set(0,1.5,20);
+		scene.add(whiteball);
+		
+		//Colored Balls
+		//First row
+		var ball1Material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+		var ball1 = new THREE.Mesh(BallGeometry,ball1Material);
+		ball1.position.set(0,1.5,-18);
+		scene.add(ball1);
+		
+		//Second row
+		var ball2Material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+		var ball2 = new THREE.Mesh(BallGeometry,ball2Material);
+		ball2.position.set(-1.1,1.5,-20);
+		scene.add(ball2);
+		
+		var ball3Material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+		var ball3 = new THREE.Mesh(BallGeometry,ball3Material);
+		ball3.position.set(1.1,1.5,-20);
+		scene.add(ball3);
+		
+		//Third row
+		var ball4Material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+		var ball4 = new THREE.Mesh(BallGeometry,ball4Material);
+		ball4.position.set(-2.1,1.5,-22);
+		scene.add(ball4);
+		
+		var ball5Material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+		var ball5 = new THREE.Mesh(BallGeometry,ball5Material);
+		ball5.position.set(0,1.5,-22);
+		scene.add(ball5);
+		
+		var ball6Material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+		var ball6 = new THREE.Mesh(BallGeometry,ball6Material);
+		ball6.position.set(2.1,1.5,-22);
+		scene.add(ball6);
+		
+		//Fourth row
+		var ball7Material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+		var ball7 = new THREE.Mesh(BallGeometry,ball7Material);
+		ball7.position.set(3.2,1.5,-24);
+		scene.add(ball7);
+		
+		var ball8Material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+		var ball8 = new THREE.Mesh(BallGeometry,ball8Material);
+		ball8.position.set(1.1,1.5,-24);
+		scene.add(ball8);
+		
+		var ball9Material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+		var ball9 = new THREE.Mesh(BallGeometry,ball9Material);
+		ball9.position.set(-1.1,1.5,-24);
+		scene.add(ball9);
+		
+		var ball10Material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+		var ball10 = new THREE.Mesh(BallGeometry,ball10Material);
+		ball10.position.set(-3.2,1.5,-24);
+		scene.add(ball10);
+		
+		//Fifth row
+		var ball11Material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+		var ball11 = new THREE.Mesh(BallGeometry,ball11Material);
+		ball11.position.set(-4.3,1.5,-26);
+		scene.add(ball11);
+		
+		var ball12Material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+		var ball12 = new THREE.Mesh(BallGeometry,ball12Material);
+		ball12.position.set(-2.1,1.5,-26);
+		scene.add(ball12);
+		
+		var ball13Material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+		var ball13= new THREE.Mesh(BallGeometry,ball13Material);
+		ball13.position.set(0,1.5,-26);
+		scene.add(ball13);
+		
+		var ball14Material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+		var ball14 = new THREE.Mesh(BallGeometry,ball14Material);
+		ball14.position.set(2.1,1.5,-26);
+		scene.add(ball14);
+		
+		var ball15Material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+		var ball15 = new THREE.Mesh(BallGeometry,ball15Material);
+		ball15.position.set(4.3,1.5,-26);
+		scene.add(ball15);
+		
+				
         camera.add(cue);
-        cue.lookAt(poolGroup.position);
-        cue.position.set(0, 0, -10);
-        cue.position.applyMatrix4(camera.matrixWorld);
+        cue.position.set(1.7, -0.4, -20);
+		cue.rotation.x = -1.55;
+		cue.rotation.y = 0;
+		cue.rotation.z = 0.1;
+        cue.position.applyMatrix4(camera.matrixWorld);		
 
         var raycaster = new THREE.Raycaster();
         var speed = new THREE.Vector3();
         var clock = new THREE.Clock();
-
+		
+		
+		
+		
+		//Camere positioning
+        camera.position.y = 8;
+        camera.position.x = 50;
+        camera.position.z = 0;
+        //camera.lookAt(whiteball.position);
+        scene.add(camera);
+			
         //Camera controls
         controls = new THREE.OrbitControls(camera, renderer.domElement);
         //controls.addEventListener( 'change', render ); // add this only if there is no animation loop (requestAnimationFrame)
         controls.enableDamping = true;
         controls.dampingFactor = 0.25;
         controls.enableZoom = false;
-
-        //Camere positioning
-        camera.position.y = 5;
-        camera.position.x = 30;
-        camera.position.z = 0;
-        camera.lookAt(poolGroup.position);
-        scene.add(camera);
+		controls.target = whiteball.position;
+		
+		
+		
+		
+        
     }
 
     function render() {
@@ -148,6 +249,6 @@
         mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
     }
     render();
-		</script>
+	</script>
 </body>
 </html>
