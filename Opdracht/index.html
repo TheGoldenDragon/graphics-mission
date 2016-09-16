@@ -13,141 +13,141 @@
 <script src="js/Detector.js"></script>
 
 <script>
-			if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
-			
-			var camera, controls, scene, renderer;
+    if (!Detector.webgl) Detector.addGetWebGLMessage();
 
-			init();
-				
-			function init() {
+    var camera, controls, scene, renderer;
 
-				scene = new THREE.Scene();
-				camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-			
-				renderer = new THREE.WebGLRenderer();
-				renderer.setSize(1200, 800);
-				renderer.setClearColor(0x000000);
-				document.body.appendChild(renderer.domElement);
-						
-				//BackgroundColor
-				var backgroundMaterial = new THREE.MeshBasicMaterial( { color: 0x21aadf } );
-				var backgroundMaterial = new THREE.MeshPhongMaterial( { color: 0x21aadf } );
-				//BackgroundSize
-				var background = new THREE.Mesh( new THREE.PlaneBufferGeometry(window.innerWidth,window.innerHeight,2,2), backgroundMaterial);
-				background.position.y = -2;
-				background.rotation.x = - Math.PI / 2;
-				scene.add(background);
-			
-				//pooltable group
-				//{
-				var poolGroup = new THREE.Group();
-						
-				//pooltable color
-				var poolMaterial = new THREE.MeshPhongMaterial( {color:0x07A127 });
-				//Borders of the pooltable
-				var b1Geometry = new THREE.BoxGeometry(21,1,1);
-				var b1 = new THREE.Mesh(b1Geometry,poolMaterial);
-				b1.position.x = 0;
-				b1.position.y = 0.2;
-				b1.position.z = 20;
-				poolGroup.add(b1);
-				var b2Geometry = new THREE.BoxGeometry(21,1,1);
-				var b2 = new THREE.Mesh(b2Geometry,poolMaterial);
-				b2.position.x = 0;
-				b2.position.y = 0.2;
-				b2.position.z = -20;
-				poolGroup.add(b2);
-				var b3Geometry = new THREE.BoxGeometry(1,1,40);
-				var b3 = new THREE.Mesh(b3Geometry,poolMaterial);
-				b3.position.x = 10;
-				b3.position.y = 0.2;
-				b3.position.z = 0;
-				poolGroup.add(b3);
-				var b4Geometry = new THREE.BoxGeometry(1,1,40);
-				var b4 = new THREE.Mesh(b4Geometry,poolMaterial);
-				b4.position.x = -10;
-				b4.position.y = 0.2;
-				b4.position.z = 0;
-				poolGroup.add(b4);
-				//Pooltable
-				var poolGeometry = new THREE.BoxGeometry(20,0.5,40);
-				var pooltable = new THREE.Mesh(poolGeometry,poolMaterial);
-				pooltable.position.x = 0;
-				pooltable.position.y = 0;
-				pooltable.position.z = 0;
-				poolGroup.add(pooltable);
-				//}
-				scene.add(poolGroup);
-						
-				//Complete pooltable position;
-				poolGroup.position.x = 0;
-				poolGroup.position.y = 0;
-				poolGroup.position.z = 0;
-						
-				//Lightning
-				scene.add( new THREE.AmbientLight(0x111111));
-			
-				var sphere = new THREE.SphereGeometry(0.5, 16, 8);	
-										
-				var light = new THREE.PointLight(0xf0f0f0, 0.5, 100);
-				light.add(new THREE.Mesh(sphere, new THREE.MeshBasicMaterial( { color: 0xf0f0f0 } )));
-				light.position.set(0, 8, -8);
-				scene.add(light);
-			
-				var light1 = new THREE.PointLight(0xf0f0f0, 0.5, 100);
-				light1.add(new THREE.Mesh(sphere, new THREE.MeshBasicMaterial( { color: 0xf0f0f0 } )));
-				light1.position.set(0, 8, 8);
-				scene.add(light1);
-						
-				//cue
-				var cueGeometry = new THREE.CylinderGeometry(0.1,0.4,30);
-				var cueColor = new THREE.MeshBasicMaterial( { color: 0xb88b45 } );
-				var cue = new THREE.Mesh(cueGeometry,cueColor);
-				
-				camera.add(cue);
-				cue.lookAt(poolGroup.position);
-				cue.position.set(0,0,-10);
-				cue.position.applyMatrix4( camera.matrixWorld );
-							
-				var raycaster = new THREE.Raycaster();
-				var speed = new THREE.Vector3();
-				var clock = new THREE.Clock();
-			
-				//Camera controls
-				controls = new THREE.OrbitControls( camera, renderer.domElement );
-				//controls.addEventListener( 'change', render ); // add this only if there is no animation loop (requestAnimationFrame)
-				controls.enableDamping = true;
-				controls.dampingFactor = 0.25;
-				controls.enableZoom = false;
-						
-				//Camere positioning
-				camera.position.y = 5;
-				camera.position.x = 30;
-				camera.position.z = 0;
-				camera.lookAt(poolGroup.position);
-				scene.add(camera);
-			}
-						
-			function render() {		
-				requestAnimationFrame(render);
-				
-				controls.update();
-								
-				renderer.render(scene,camera);
-			}
-			
-			var mouse = new THREE.Vector2();
-			
-			document.addEventListener('mousemove', onDocumentMouseMove, true);
-			
-			function onDocumentMouseMove(event) {
-				
-				event.preventDefault();
-				
-				mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-				mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
-			}			
-			render();
+    init();
+
+    function init() {
+
+        scene = new THREE.Scene();
+        camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+        renderer = new THREE.WebGLRenderer();
+        renderer.setSize(1200, 800);
+        renderer.setClearColor(0x000000);
+        document.body.appendChild(renderer.domElement);
+
+        //BackgroundColor
+        var backgroundMaterial = new THREE.MeshBasicMaterial({ color: 0x21aadf });
+        var backgroundMaterial = new THREE.MeshPhongMaterial({ color: 0x21aadf });
+        //BackgroundSize
+        var background = new THREE.Mesh(new THREE.PlaneBufferGeometry(window.innerWidth, window.innerHeight, 2, 2), backgroundMaterial);
+        background.position.y = -2;
+        background.rotation.x = -Math.PI / 2;
+        scene.add(background);
+
+        //pooltable group
+        //{
+        var poolGroup = new THREE.Group();
+
+        //pooltable color
+        var poolMaterial = new THREE.MeshPhongMaterial({ color: 0x07A127 });
+        //Borders of the pooltable
+        var b1Geometry = new THREE.BoxGeometry(21, 1, 1);
+        var b1 = new THREE.Mesh(b1Geometry, poolMaterial);
+        b1.position.x = 0;
+        b1.position.y = 0.2;
+        b1.position.z = 20;
+        poolGroup.add(b1);
+        var b2Geometry = new THREE.BoxGeometry(21, 1, 1);
+        var b2 = new THREE.Mesh(b2Geometry, poolMaterial);
+        b2.position.x = 0;
+        b2.position.y = 0.2;
+        b2.position.z = -20;
+        poolGroup.add(b2);
+        var b3Geometry = new THREE.BoxGeometry(1, 1, 40);
+        var b3 = new THREE.Mesh(b3Geometry, poolMaterial);
+        b3.position.x = 10;
+        b3.position.y = 0.2;
+        b3.position.z = 0;
+        poolGroup.add(b3);
+        var b4Geometry = new THREE.BoxGeometry(1, 1, 40);
+        var b4 = new THREE.Mesh(b4Geometry, poolMaterial);
+        b4.position.x = -10;
+        b4.position.y = 0.2;
+        b4.position.z = 0;
+        poolGroup.add(b4);
+        //Pooltable
+        var poolGeometry = new THREE.BoxGeometry(20, 0.5, 40);
+        var pooltable = new THREE.Mesh(poolGeometry, poolMaterial);
+        pooltable.position.x = 0;
+        pooltable.position.y = 0;
+        pooltable.position.z = 0;
+        poolGroup.add(pooltable);
+        //}
+        scene.add(poolGroup);
+
+        //Complete pooltable position;
+        poolGroup.position.x = 0;
+        poolGroup.position.y = 0;
+        poolGroup.position.z = 0;
+
+        //Lightning
+        scene.add(new THREE.AmbientLight(0x111111));
+
+        var sphere = new THREE.SphereGeometry(0.5, 16, 8);
+
+        var light = new THREE.PointLight(0xf0f0f0, 0.5, 100);
+        light.add(new THREE.Mesh(sphere, new THREE.MeshBasicMaterial({ color: 0xf0f0f0 })));
+        light.position.set(0, 16, -8);
+        scene.add(light);
+
+        var light1 = new THREE.PointLight(0xf0f0f0, 0.5, 100);
+        light1.add(new THREE.Mesh(sphere, new THREE.MeshBasicMaterial({ color: 0xf0f0f0 })));
+        light1.position.set(0, 16, 8);
+        scene.add(light1);
+
+        //cue
+        var cueGeometry = new THREE.CylinderGeometry(0.1, 0.4, 30);
+        var cueColor = new THREE.MeshBasicMaterial({ color: 0xb88b45 });
+        var cue = new THREE.Mesh(cueGeometry, cueColor);
+
+        camera.add(cue);
+        cue.lookAt(poolGroup.position);
+        cue.position.set(0, 0, -10);
+        cue.position.applyMatrix4(camera.matrixWorld);
+
+        var raycaster = new THREE.Raycaster();
+        var speed = new THREE.Vector3();
+        var clock = new THREE.Clock();
+
+        //Camera controls
+        controls = new THREE.OrbitControls(camera, renderer.domElement);
+        //controls.addEventListener( 'change', render ); // add this only if there is no animation loop (requestAnimationFrame)
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.25;
+        controls.enableZoom = false;
+
+        //Camere positioning
+        camera.position.y = 5;
+        camera.position.x = 30;
+        camera.position.z = 0;
+        camera.lookAt(poolGroup.position);
+        scene.add(camera);
+    }
+
+    function render() {
+        requestAnimationFrame(render);
+
+        controls.update();
+
+        renderer.render(scene, camera);
+    }
+
+    var mouse = new THREE.Vector2();
+
+    document.addEventListener('mousemove', onDocumentMouseMove, true);
+
+    function onDocumentMouseMove(event) {
+
+        event.preventDefault();
+
+        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    }
+    render();
 		</script>
 </body>
 </html>
