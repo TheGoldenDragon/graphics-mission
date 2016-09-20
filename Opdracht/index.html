@@ -15,7 +15,7 @@
 <script>
     if (!Detector.webgl) Detector.addGetWebGLMessage();
 
-    var camera, controls, scene, renderer;
+    var camera, controls, scene, renderer, whiteball, rotationVector, speed, raycaster, clock, whitedirection, poolGroup, cue;
 
     init();
 
@@ -40,7 +40,7 @@
 
         //pooltable group
         //{
-        var poolGroup = new THREE.Group();
+        poolGroup = new THREE.Group();
 
         //pooltable color
         var poolMaterial = new THREE.MeshPhongMaterial({ color: 0x07A127 });
@@ -102,13 +102,13 @@
         //cue
         var cueGeometry = new THREE.CylinderGeometry(0.1, 0.4, 30);
         var cueColor = new THREE.MeshBasicMaterial({ color: 0xb88b45 });
-        var cue = new THREE.Mesh(cueGeometry, cueColor);
+        cue = new THREE.Mesh(cueGeometry, cueColor);
 		
 		//Balls
 		//White ball
 		var BallGeometry = new THREE.SphereGeometry(1,10,10);
 		var wbMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
-		var whiteball= new THREE.Mesh(BallGeometry,wbMaterial);
+		whiteball= new THREE.Mesh(BallGeometry,wbMaterial);
 		whiteball.position.set(0,1.5,20);
 		scene.add(whiteball);
 		
@@ -200,16 +200,30 @@
 		cue.rotation.y = 0;
 		cue.rotation.z = 0.1;
         cue.position.applyMatrix4(camera.matrixWorld);		
-
-        var raycaster = new THREE.Raycaster();
-        var speed = new THREE.Vector3();
-        var clock = new THREE.Clock();
+		
+		
+		
+		
+		
+		
+		//Direction of the moving ball.
+		whiteDirection = new THREE.Vector3();
+			whiteDirection.z = -1;
+			whiteDirection.x = -1;
+			whiteDirection.normalize();
+		var rotationPerFrame = 0.05;
+		rotationVector = new THREE.Vector3(rotationPerFrame,rotationPerFrame,rotationPerFrame);
+			
+		//Elements need for movement and collision.
+        raycaster = new THREE.Raycaster();
+        speed = new THREE.Vector3();
+        clock = new THREE.Clock();
 		
 		
 		
 		
 		//Camere positioning
-        camera.position.y = 8;
+        camera.position.y = 0;
         camera.position.x = 50;
         camera.position.z = 0;
         //camera.lookAt(whiteball.position);
@@ -231,13 +245,42 @@
 
     function render() {
         requestAnimationFrame(render);
-
+	
+		whiteball.rotation.setFromVector3(whiteball.rotation.toVector3().add(rotationVector));
+				
+		whiteball.position.add(speed.copy(whiteDirection).multiplyScalar(clock.getDelta()*20));
+				
+		raycaster.set(whiteball.position, whiteDirection);
+				
+		var intersections = raycaster.intersectObjects(poolGroup.children);
+				
+		if(intersections.length > 0) {
+			var intersection = intersections[0];
+			
+			if(intersection.distance < 2) {
+				whiteDirection.reflect(intersection.face.normal);
+			}
+		}
+	
         controls.update();
 
         renderer.render(scene, camera);
     }
 
     var mouse = new THREE.Vector2();
+	
+	
+	
+	//In the making
+	document.addEventListener('mousedown', onMouseClick, true);
+	
+	function onMouseClick(event) {
+		
+		event.preventDefault();
+		whiteDirection.x = camera.direction.x;
+		whiteDirection.z = camera.direction.z;
+	}
+	
 
     document.addEventListener('mousemove', onDocumentMouseMove, true);
 
