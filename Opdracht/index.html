@@ -40,12 +40,12 @@
         background.rotation.x = -Math.PI / 2;
         scene.add(background);
 
-		sceneGroup = new THREE.Group();
-		scene.add(sceneGroup);
+        sceneGroup = new THREE.Group();
+        scene.add(sceneGroup);
 
         poolGroup = new THREE.Group();
-		sceneGroup.add(poolGroup);
-		
+        sceneGroup.add(poolGroup);
+
         //pooltable color
         var poolMaterial = new THREE.MeshPhongMaterial({ color: 0x07A127 });
         //Borders of the pooltable
@@ -90,7 +90,7 @@
         poolGroup.position.x = 0;
         poolGroup.position.y = 0;
         poolGroup.position.z = 0;
-        
+
         //cue
         var cueGeometry = new THREE.CylinderGeometry(0.1, 0.4, 30);
         var cueColor = new THREE.MeshPhongMaterial({ color: 0xb88b45 });
@@ -99,7 +99,7 @@
         cue.receiveShadow = true;
 
         ballGroup = new THREE.Group();
-		sceneGroup.add(ballGroup);
+        sceneGroup.add(ballGroup);
 
         //Balls
         //White ball
@@ -110,8 +110,8 @@
 
         whiteball.castShadow = true;
         whiteball.receiveShadow = true;
-		ballGroup.add(whiteball);
-        
+        ballGroup.add(whiteball);
+
 
         //Colored Balls
         //First row
@@ -205,8 +205,8 @@
 
         //Direction of the moving ball.
         whiteDirection = new THREE.Vector3();
-        whiteDirection.z = -1;
-        whiteDirection.x = -1;
+        whiteDirection.z = 0;
+        whiteDirection.x = 0;
         whiteDirection.normalize();
         var rotationPerFrame = 0.05;
         rotationVector = new THREE.Vector3(rotationPerFrame, rotationPerFrame, rotationPerFrame);
@@ -217,7 +217,7 @@
         speed = new THREE.Vector3();
         clock = new THREE.Clock();
 
-        
+
         //Lightning
         scene.add(new THREE.AmbientLight(0x111111));
         var sphere = new THREE.SphereGeometry(0.5, 16, 8);
@@ -246,7 +246,7 @@
         var light2 = new THREE.SpotLight(0xf0f0f0, 0.7, 100, Math.PI * 0.8);
         light2.add(new THREE.Mesh(sphere, new THREE.MeshBasicMaterial({ color: 0xf0f0f0 })));
         light2.position.set(0, 48, 12);
-        
+
         light2.castShadow = true;
         light2.shadow.camera.near = 0.1;
         light2.shadow.camera.far = 1000;
@@ -290,8 +290,8 @@
         raycaster.set(whiteball.position, whiteDirection);
 
         var intersections = raycaster.intersectObjects(poolGroup.children);
-		var intersectionsBall = raycaster.intersectObjects(ballGroup.children);
-		
+        //var intersectionsBall = raycaster.intersectObjects(ballGroup.children);
+
         if (intersections.length > 0) {
             var intersection = intersections[0];
 
@@ -299,13 +299,14 @@
                 whiteDirection.reflect(intersection.face.normal);
             }
         }
-		if (intersectionsBall.length > 0) {
-            var intersection = intersectionsBall[0];
+        /*
+        if (intersectionsBall.length > 0) {
+        var intersection = intersectionsBall[0];
 
-            if (intersection.distance < 2) {
-                whiteDirection.reflect(intersection.face.normal);
-            }
+        if (intersection.distance < 2) {
+        whiteDirection.reflect(intersection.face.normal);
         }
+        }*/
 
         controls.update();
 
@@ -315,26 +316,36 @@
     var mouse = new THREE.Vector2();
 
     //In the making
-    document.addEventListener('mousedown', onMouseClick, true);
+    document.addEventListener('keydown', onKeyDown, true);
 
-    function onMouseClick(event) {
-
+    function onKeyDown(event) {
         event.preventDefault();
-        whiteDirection.x = camera.direction.x;
-        whiteDirection.z = camera.direction.z;
+
+        //var keyCode = event.which;
+
+        switch (event.keyCode) {
+            case 32:
+                var cameraVector = new THREE.Vector3(0, 0, -1);
+                camera.getWorldDirection(cameraVector);
+
+                whiteDirection.x = cameraVector.x;
+                whiteDirection.z = cameraVector.z;
+                break;
+        }
     }
 
 
     document.addEventListener('mousemove', onDocumentMouseMove, true);
 
     function onDocumentMouseMove(event) {
-
         event.preventDefault();
 
         mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
         mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
     }
+
     render();
+
 	</script>
 </body>
 </html>
