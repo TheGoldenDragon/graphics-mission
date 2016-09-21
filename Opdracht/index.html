@@ -36,8 +36,9 @@
         var backgroundMaterial = new THREE.MeshPhongMaterial({ color: 0x21aadf });
         //BackgroundSize
         var background = new THREE.Mesh(new THREE.PlaneBufferGeometry(window.innerWidth, window.innerHeight, 2, 2), backgroundMaterial);
-        background.position.y = -15;
+        background.position.y = -30;
         background.rotation.x = -Math.PI / 2;
+        background.receiveShadow = true;
         scene.add(background);
 
         sceneGroup = new THREE.Group();
@@ -54,6 +55,7 @@
         b1.position.x = 0;
         b1.position.y = 0.5;
         b1.position.z = 40;
+        b1.castShadow = true;
         b1.receiveShadow = true;
         poolGroup.add(b1);
         var b2Geometry = new THREE.BoxGeometry(42, 2, 2);
@@ -61,6 +63,7 @@
         b2.position.x = 0;
         b2.position.y = 0.5;
         b2.position.z = -40;
+        b2.castShadow = true;
         b2.receiveShadow = true;
         poolGroup.add(b2);
         var b3Geometry = new THREE.BoxGeometry(2, 2, 80);
@@ -68,6 +71,7 @@
         b3.position.x = 20;
         b3.position.y = 0.5;
         b3.position.z = 0;
+        b3.castShadow = true;
         b3.receiveShadow = true;
         poolGroup.add(b3);
         var b4Geometry = new THREE.BoxGeometry(2, 2, 80);
@@ -75,6 +79,7 @@
         b4.position.x = -20;
         b4.position.y = 0.5;
         b4.position.z = 0;
+        b4.castShadow = true;
         b4.receiveShadow = true;
         poolGroup.add(b4);
         //Pooltable
@@ -83,6 +88,7 @@
         pooltable.position.x = 0;
         pooltable.position.y = 0;
         pooltable.position.z = 0;
+        pooltable.castShadow = true;
         pooltable.receiveShadow = true;
         poolGroup.add(pooltable);
 
@@ -225,7 +231,7 @@
         //Spotlight 1
         var light1 = new THREE.SpotLight(0xf0f0f0, 0.7, 100, Math.PI * 0.8);
         light1.add(new THREE.Mesh(sphere, new THREE.MeshBasicMaterial({ color: 0xf0f0f0 })));
-        light1.position.set(0, 48, -12);
+        light1.position.set(8, 48, -16);
 
         light1.castShadow = true;
         light1.shadow.camera.near = 0.1;
@@ -238,14 +244,14 @@
         scene.add(light1);
 
         lightTarget1 = new THREE.Object3D();
-        lightTarget1.position.set(0, -20, -12);
+        lightTarget1.position.set(8, -20, -16);
         scene.add(lightTarget1);
         light1.target = lightTarget1;
 
         //Spotlight 2
         var light2 = new THREE.SpotLight(0xf0f0f0, 0.7, 100, Math.PI * 0.8);
         light2.add(new THREE.Mesh(sphere, new THREE.MeshBasicMaterial({ color: 0xf0f0f0 })));
-        light2.position.set(0, 48, 12);
+        light2.position.set(8, 48, 16);
 
         light2.castShadow = true;
         light2.shadow.camera.near = 0.1;
@@ -253,15 +259,48 @@
         light2.shadow.mapSize.width = 1024;
         light2.shadow.mapSize.height = 1024;
 
-        //light2helper = new THREE.CameraHelper(light2.shadow.camera);
-        //scene.add(light2helper);
-
         scene.add(light2);
 
         lightTarget2 = new THREE.Object3D();
-        lightTarget2.position.set(0, -20, 12);
+        lightTarget2.position.set(8, -20, 16);
         scene.add(lightTarget2);
         light2.target = lightTarget2;
+
+        //Spotlight 3
+        var light3 = new THREE.SpotLight(0xf0f0f0, 0.7, 100, Math.PI * 0.8);
+        light3.add(new THREE.Mesh(sphere, new THREE.MeshBasicMaterial({ color: 0xf0f0f0 })));
+        light3.position.set(-8, 48, -16);
+
+        light3.castShadow = true;
+        light3.shadow.camera.near = 0.1;
+        light3.shadow.camera.far = 1000;
+        light3.shadow.mapSize.width = 1024;
+        light3.shadow.mapSize.height = 1024;
+
+        scene.add(light3);
+
+        lightTarget3 = new THREE.Object3D();
+        lightTarget3.position.set(-8, -20, -16);
+        scene.add(lightTarget3);
+        light3.target = lightTarget3;
+
+        //Spotlight 4
+        var light4 = new THREE.SpotLight(0xf0f0f0, 0.7, 100, Math.PI * 0.8);
+        light4.add(new THREE.Mesh(sphere, new THREE.MeshBasicMaterial({ color: 0xf0f0f0 })));
+        light4.position.set(-8, 48, 16);
+
+        light4.castShadow = true;
+        light4.shadow.camera.near = 0.1;
+        light4.shadow.camera.far = 1000;
+        light4.shadow.mapSize.width = 1024;
+        light4.shadow.mapSize.height = 1024;
+
+        scene.add(light4);
+
+        lightTarget4 = new THREE.Object3D();
+        lightTarget4.position.set(-8, -20, 16);
+        scene.add(lightTarget4);
+        light4.target = lightTarget4;
 
 
         //Camera positioning
