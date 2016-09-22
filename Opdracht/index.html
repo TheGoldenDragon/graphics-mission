@@ -15,7 +15,7 @@
 <script>
     if (!Detector.webgl) Detector.addGetWebGLMessage();
 
-    var camera, controls, scene, renderer, whiteball, rotationVector, speed, raycaster, clock, whitedirection, poolGroup, cue, ballGroup, sceneGroup;
+    var camera, controls, scene, renderer, whiteball, rotationVector, speed, raycaster, clock, whitedirection, poolGroup, cue, ballGroup, sceneGroup ,rotationPerFrame, speedVariable;
 
     init();
 
@@ -214,7 +214,7 @@
         whiteDirection.z = 0;
         whiteDirection.x = 0;
         whiteDirection.normalize();
-        var rotationPerFrame = 0.05;
+        rotationPerFrame = 0;
         rotationVector = new THREE.Vector3(rotationPerFrame, rotationPerFrame, rotationPerFrame);
 
 
@@ -222,7 +222,7 @@
         raycaster = new THREE.Raycaster();
         speed = new THREE.Vector3();
         clock = new THREE.Clock();
-
+		speedVariable = 0;
 
         //Lightning
         scene.add(new THREE.AmbientLight(0x111111));
@@ -321,10 +321,10 @@
 
     function render() {
         requestAnimationFrame(render);
-
+	
         whiteball.rotation.setFromVector3(whiteball.rotation.toVector3().add(rotationVector));
-
-        whiteball.position.add(speed.copy(whiteDirection).multiplyScalar(clock.getDelta() * 20));
+		whiteball.position.add(speed.copy(whiteDirection).multiplyScalar(clock.getDelta() * strokeBall()));
+        //whiteball.position.add(strokeBall());
 
         raycaster.set(whiteball.position, whiteDirection);
 
@@ -366,13 +366,28 @@
             case 32:
                 var cameraVector = new THREE.Vector3(0, 0, -1);
                 camera.getWorldDirection(cameraVector);
-
+				speedVariable = 30;
                 whiteDirection.x = cameraVector.x;
                 whiteDirection.z = cameraVector.z;
+				rotationPerFrame = 0.05;
+				cue.position.z = 100;
+				controls.target = poolGroup.position;
                 break;
         }
     }
-
+	
+	function strokeBall(){
+		if(speedVariable > 0){
+		    speedVariable -= 0.1;
+		}
+		else if(speedVariable <= 0){
+			cue.position.z = 0.1;
+			controls.target = whiteball.position;
+		}
+		return speedVariable;
+	}
+	
+	
 
     document.addEventListener('mousemove', onDocumentMouseMove, true);
 
