@@ -15,7 +15,7 @@
 <script>
     if (!Detector.webgl) Detector.addGetWebGLMessage();
 
-    var camera, controls, scene, renderer, whiteball, rotationVector, speed, raycaster, clock, whitedirection, poolGroup, cue, ballGroup, sceneGroup ,rotationPerFrame, speedVariable;
+    var camera, controls, scene, renderer, whiteball, rotationVector, speed, raycaster, clock, whitedirection, poolGroup, cue, ballGroup, sceneGroup, rotationPerFrame, speedVariable;
 
     init();
 
@@ -222,7 +222,7 @@
         raycaster = new THREE.Raycaster();
         speed = new THREE.Vector3();
         clock = new THREE.Clock();
-		speedVariable = 0;
+        speedVariable = -1;
 
         //Lightning
         scene.add(new THREE.AmbientLight(0x111111));
@@ -304,9 +304,9 @@
 
 
         //Camera positioning
-        camera.position.y = 0;
-        camera.position.x = 50;
-        camera.position.z = 0;
+        camera.position.y = 20;
+        camera.position.x = 0;
+        camera.position.z = 70;
         //camera.lookAt(whiteball.position);
         scene.add(camera);
 
@@ -321,9 +321,10 @@
 
     function render() {
         requestAnimationFrame(render);
-	
+
         whiteball.rotation.setFromVector3(whiteball.rotation.toVector3().add(rotationVector));
-		whiteball.position.add(speed.copy(whiteDirection).multiplyScalar(clock.getDelta() * strokeBall()));
+        whiteball.position.add(speed.copy(whiteDirection).multiplyScalar(clock.getDelta() * strokeBall()));
+
         //whiteball.position.add(strokeBall());
 
         raycaster.set(whiteball.position, whiteDirection);
@@ -360,34 +361,45 @@
     function onKeyDown(event) {
         event.preventDefault();
 
+        var ballSpeed = strokeBall();
         //var keyCode = event.which;
-
-        switch (event.keyCode) {
-            case 32:
-                var cameraVector = new THREE.Vector3(0, 0, -1);
-                camera.getWorldDirection(cameraVector);
-				speedVariable = 30;
-                whiteDirection.x = cameraVector.x;
-                whiteDirection.z = cameraVector.z;
-				rotationPerFrame = 0.05;
-				cue.position.z = 100;
-				controls.target = poolGroup.position;
-                break;
+        if (ballSpeed <= 0) {
+            switch (event.keyCode) {
+                case 32:
+                    var cameraVector = new THREE.Vector3(0, 0, -1);
+                    camera.getWorldDirection(cameraVector);
+                    speedVariable = 30;
+                    whiteDirection.x = cameraVector.x;
+                    whiteDirection.z = cameraVector.z;
+                    rotationPerFrame = 0.05;
+                    cue.position.z = 100;
+                    controls.target = poolGroup.position;
+                    break;
+            }
         }
+
     }
-	
-	function strokeBall(){
-		if(speedVariable > 0){
-		    speedVariable -= 0.1;
-		}
-		else if(speedVariable <= 0){
-			cue.position.z = 0.1;
-			controls.target = whiteball.position;
-		}
-		return speedVariable;
-	}
-	
-	
+
+    function strokeBall() {
+        if (speedVariable > 0) {
+            speedVariable -= 0.1;
+        }
+        else if (speedVariable > -0.1 && speedVariable < 0.1) {
+            speedVariable -= 0.1;
+            controls.target = whiteball.position;
+            camera.position.y = whiteball.position.y + 40;
+            camera.position.x = whiteball.position.x + 30;
+            camera.position.z = whiteball.position.z + 30;
+        }
+        else if (speedVariable < 0) {
+            cue.position.z = 0.1;
+
+            controls.target = whiteball.position;
+        }
+        return speedVariable;
+    }
+
+
 
     document.addEventListener('mousemove', onDocumentMouseMove, true);
 
