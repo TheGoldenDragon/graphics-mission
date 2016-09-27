@@ -11,11 +11,12 @@
 <script src="js/three.js"></script>
 <script src="js/OrbitControls.js"></script>
 <script src="js/Detector.js"></script>
+<script src="js/PhysicsTest.js"></script>
 
 <script>
     if (!Detector.webgl) Detector.addGetWebGLMessage();
 
-    var ball1, camera, controls, scene, renderer, whiteball, rotationVector, speed, raycaster, clock, whitedirection, poolGroup, cue, rotationPerFrame, speedVariable, ball1Group, ball1Direction;
+    var ball1, camera, controls, scene, renderer, whiteball, rotationVector, speed, physics, raycaster, clock, whiteDirection, poolGroup, cue, rotationPerFrame, speedVariable, ball1Group, ball1Direction;
 
     init();
 
@@ -23,6 +24,7 @@
 
         scene = new THREE.Scene();
         camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+
 
         renderer = new THREE.WebGLRenderer();
         renderer.setSize(1200, 800);
@@ -107,22 +109,24 @@
         var wbMaterial = new THREE.MeshPhongMaterial({ color: 0xffffee });
         whiteball = new THREE.Mesh(BallGeometry, wbMaterial);
         whiteball.position.set(0, 1.5, 20);
-		whiteball.geometry.dynamic = true;
+        whiteball.geometry.dynamic = true;
         whiteball.castShadow = true;
         whiteball.receiveShadow = true;
+        whiteballPhysics = new PhysicsObject(whiteball);
         scene.add(whiteball);
 
 
 
-		ball1Group = new THREE.Group();
+        ball1Group = new THREE.Group();
         //Colored Balls
         //First row
         var ball1Material = new THREE.MeshBasicMaterial({ color: 0xffffaa });
         ball1 = new THREE.Mesh(BallGeometry, ball1Material);
         ball1.position.set(0, 1.5, -18);
-		ball1Group.add(ball1);
+        ball1Group.add(ball1);
+        ball1Physics = new PhysicsObject(ball1);
         //scene.add(ball1);
-		scene.add(ball1Group);
+        scene.add(ball1Group);
         //Second row
         var ball2Material = new THREE.MeshBasicMaterial({ color: 0xffffff });
         var ball2 = new THREE.Mesh(BallGeometry, ball2Material);
@@ -213,8 +217,8 @@
         whiteDirection.normalize();
         rotationPerFrame = 0;
         rotationVector = new THREE.Vector3(rotationPerFrame, rotationPerFrame, rotationPerFrame);
-	
-		ball1Direction = new THREE.Vector3();
+
+        ball1Direction = new THREE.Vector3();
         ball1Direction.z = 0;
         ball1Direction.x = 0;
         ball1Direction.normalize();
@@ -223,7 +227,8 @@
         raycaster = new THREE.Raycaster();
         speed = new THREE.Vector3();
         clock = new THREE.Clock();
-        speedVariable = -1;
+        speedVariable = 0;
+
 
         //Lightning
         scene.add(new THREE.AmbientLight(0x111111));
@@ -324,16 +329,19 @@
         requestAnimationFrame(render);
 
         whiteball.rotation.setFromVector3(whiteball.rotation.toVector3().add(rotationVector));
-        whiteball.position.add(speed.copy(whiteDirection).multiplyScalar(clock.getDelta() * strokeBall()));
+        //whiteball.position.add(speed.copy(whiteDirection).multiplyScalar(clock.getDelta() * strokeBall()));
+        //var xz = whiteballPhysics.calculateNewPos(whiteball.position.x, whiteball.position.z, 30 * clock.getDelta() * strokeBall(), whiteballDirection.x, whiteballDirection.z);
+        var xz = whiteballPhysics.calculateNewPos(whiteball.position.x, whiteball.position.z, (clock.getDelta() * strokeBall()), whiteDirection.x, whiteDirection.z);
 
-        //whiteball.position.add(strokeBall());
+        whiteball.position.x = xz[0];
+        whiteball.position.z = xz[1];
 
         raycaster.set(whiteball.position, whiteDirection);
 
         var intersections = raycaster.intersectObjects(poolGroup.children);
         //var intersectionsBall = raycaster.intersectObjects(ball1.children);
-		var ball1collision = raycaster.intersectObjects(ball1Group.children);
-		
+        var ball1collision = raycaster.intersectObjects(ball1Group.children);
+
         if (intersections.length > 0) {
             var intersection = intersections[0];
 
@@ -341,17 +349,17 @@
                 whiteDirection.reflect(intersection.face.normal);
             }
         }
-        
-        if (ball1collision.length > 0) {
-        	var intersection = ball1collision[0];
 
-        	if (intersection.distance < 2) {
-				ball1Direction.x += whiteDirection.x;
-				ball1Direction.z += whiteDirection.z;
-				
-				 
-        		whiteDirection.reflect(intersection.face.normal);
-        	}
+        if (ball1collision.length > 0) {
+            var intersection = ball1collision[0];
+
+            if (intersection.distance < 2) {
+                ball1Direction.x += whiteDirection.x;
+                ball1Direction.z += whiteDirection.z;
+
+
+                whiteDirection.reflect(intersection.face.normal);
+            }
         }
 
         controls.update();
@@ -415,6 +423,9 @@
         mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
         mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
     }
+
+
+
 
     render();
 
