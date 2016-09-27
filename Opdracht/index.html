@@ -15,7 +15,7 @@
 <script>
     if (!Detector.webgl) Detector.addGetWebGLMessage();
 
-    var camera, controls, scene, renderer, whiteball, rotationVector, speed, raycaster, clock, whitedirection, poolGroup, cue, ballGroup, sceneGroup, rotationPerFrame, speedVariable;
+    var ball1, camera, controls, scene, renderer, whiteball, rotationVector, speed, raycaster, clock, whitedirection, poolGroup, cue, rotationPerFrame, speedVariable, ball1Group, ball1Direction;
 
     init();
 
@@ -41,11 +41,8 @@
         background.receiveShadow = true;
         scene.add(background);
 
-        sceneGroup = new THREE.Group();
-        scene.add(sceneGroup);
-
         poolGroup = new THREE.Group();
-        sceneGroup.add(poolGroup);
+        scene.add(poolGroup);
 
         //pooltable color
         var poolMaterial = new THREE.MeshPhongMaterial({ color: 0x07A127 });
@@ -104,101 +101,101 @@
         cue.castShadow = true;
         cue.receiveShadow = true;
 
-        ballGroup = new THREE.Group();
-        sceneGroup.add(ballGroup);
-
         //Balls
         //White ball
         var BallGeometry = new THREE.SphereGeometry(1, 10, 10);
-        var wbMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff });
+        var wbMaterial = new THREE.MeshPhongMaterial({ color: 0xffffee });
         whiteball = new THREE.Mesh(BallGeometry, wbMaterial);
         whiteball.position.set(0, 1.5, 20);
-
+		whiteball.geometry.dynamic = true;
         whiteball.castShadow = true;
         whiteball.receiveShadow = true;
-        ballGroup.add(whiteball);
+        scene.add(whiteball);
 
 
+
+		ball1Group = new THREE.Group();
         //Colored Balls
         //First row
-        var ball1Material = new THREE.MeshBasicMaterial({ color: 0xffffff });
-        var ball1 = new THREE.Mesh(BallGeometry, ball1Material);
+        var ball1Material = new THREE.MeshBasicMaterial({ color: 0xffffaa });
+        ball1 = new THREE.Mesh(BallGeometry, ball1Material);
         ball1.position.set(0, 1.5, -18);
-        ballGroup.add(ball1);
-
+		ball1Group.add(ball1);
+        //scene.add(ball1);
+		scene.add(ball1Group);
         //Second row
         var ball2Material = new THREE.MeshBasicMaterial({ color: 0xffffff });
         var ball2 = new THREE.Mesh(BallGeometry, ball2Material);
         ball2.position.set(-1.1, 1.5, -20);
-        ballGroup.add(ball2);
+        scene.add(ball2);
 
         var ball3Material = new THREE.MeshBasicMaterial({ color: 0xffffff });
         var ball3 = new THREE.Mesh(BallGeometry, ball3Material);
         ball3.position.set(1.1, 1.5, -20);
-        ballGroup.add(ball3);
+        scene.add(ball3);
 
         //Third row
         var ball4Material = new THREE.MeshBasicMaterial({ color: 0xffffff });
         var ball4 = new THREE.Mesh(BallGeometry, ball4Material);
         ball4.position.set(-2.1, 1.5, -22);
-        ballGroup.add(ball4);
+        scene.add(ball4);
 
         var ball5Material = new THREE.MeshBasicMaterial({ color: 0xffffff });
         var ball5 = new THREE.Mesh(BallGeometry, ball5Material);
         ball5.position.set(0, 1.5, -22);
-        ballGroup.add(ball5);
+        scene.add(ball5);
 
         var ball6Material = new THREE.MeshBasicMaterial({ color: 0xffffff });
         var ball6 = new THREE.Mesh(BallGeometry, ball6Material);
         ball6.position.set(2.1, 1.5, -22);
-        ballGroup.add(ball6);
+        scene.add(ball6);
 
         //Fourth row
         var ball7Material = new THREE.MeshBasicMaterial({ color: 0xffffff });
         var ball7 = new THREE.Mesh(BallGeometry, ball7Material);
         ball7.position.set(3.2, 1.5, -24);
-        ballGroup.add(ball7);
+        scene.add(ball7);
 
         var ball8Material = new THREE.MeshBasicMaterial({ color: 0xffffff });
         var ball8 = new THREE.Mesh(BallGeometry, ball8Material);
         ball8.position.set(1.1, 1.5, -24);
-        ballGroup.add(ball8);
+        scene.add(ball8);
 
         var ball9Material = new THREE.MeshBasicMaterial({ color: 0xffffff });
         var ball9 = new THREE.Mesh(BallGeometry, ball9Material);
         ball9.position.set(-1.1, 1.5, -24);
-        ballGroup.add(ball9);
+        scene.add(ball9);
 
         var ball10Material = new THREE.MeshBasicMaterial({ color: 0xffffff });
         var ball10 = new THREE.Mesh(BallGeometry, ball10Material);
         ball10.position.set(-3.2, 1.5, -24);
-        ballGroup.add(ball10);
+        scene.add(ball10);
 
         //Fifth row
         var ball11Material = new THREE.MeshBasicMaterial({ color: 0xffffff });
         var ball11 = new THREE.Mesh(BallGeometry, ball11Material);
         ball11.position.set(-4.3, 1.5, -26);
-        ballGroup.add(ball11);
+        scene.add(ball11);
 
         var ball12Material = new THREE.MeshBasicMaterial({ color: 0xffffff });
         var ball12 = new THREE.Mesh(BallGeometry, ball12Material);
         ball12.position.set(-2.1, 1.5, -26);
-        ballGroup.add(ball12);
+        scene.add(ball12);
 
         var ball13Material = new THREE.MeshBasicMaterial({ color: 0xffffff });
         var ball13 = new THREE.Mesh(BallGeometry, ball13Material);
         ball13.position.set(0, 1.5, -26);
-        ballGroup.add(ball13);
+        scene.add(ball13);
 
         var ball14Material = new THREE.MeshBasicMaterial({ color: 0xffffff });
         var ball14 = new THREE.Mesh(BallGeometry, ball14Material);
         ball14.position.set(2.1, 1.5, -26);
-        ballGroup.add(ball14);
+        scene.add(ball14);
 
         var ball15Material = new THREE.MeshBasicMaterial({ color: 0xffffff });
         var ball15 = new THREE.Mesh(BallGeometry, ball15Material);
         ball15.position.set(4.3, 1.5, -26);
-        ballGroup.add(ball15);
+        scene.add(ball15);
 
 
         camera.add(cue);
@@ -216,7 +213,11 @@
         whiteDirection.normalize();
         rotationPerFrame = 0;
         rotationVector = new THREE.Vector3(rotationPerFrame, rotationPerFrame, rotationPerFrame);
-
+	
+		ball1Direction = new THREE.Vector3();
+        ball1Direction.z = 0;
+        ball1Direction.x = 0;
+        ball1Direction.normalize();
 
         //Elements need for movement and collision.
         raycaster = new THREE.Raycaster();
@@ -330,8 +331,9 @@
         raycaster.set(whiteball.position, whiteDirection);
 
         var intersections = raycaster.intersectObjects(poolGroup.children);
-        //var intersectionsBall = raycaster.intersectObjects(ballGroup.children);
-
+        //var intersectionsBall = raycaster.intersectObjects(ball1.children);
+		var ball1collision = raycaster.intersectObjects(ball1Group.children);
+		
         if (intersections.length > 0) {
             var intersection = intersections[0];
 
@@ -339,14 +341,18 @@
                 whiteDirection.reflect(intersection.face.normal);
             }
         }
-        /*
-        if (intersectionsBall.length > 0) {
-        var intersection = intersectionsBall[0];
+        
+        if (ball1collision.length > 0) {
+        	var intersection = ball1collision[0];
 
-        if (intersection.distance < 2) {
-        whiteDirection.reflect(intersection.face.normal);
+        	if (intersection.distance < 2) {
+				ball1Direction.x += whiteDirection.x;
+				ball1Direction.z += whiteDirection.z;
+				
+				 
+        		whiteDirection.reflect(intersection.face.normal);
+        	}
         }
-        }*/
 
         controls.update();
 
