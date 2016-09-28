@@ -32,7 +32,7 @@ function PhysicsObject(ThreeObject) {
         this.clockDelta = ClockDelta;
 
         //debugging
-        console.log("Ball info:\n- posX: " + this.posX + "\n- posY: " + this.posY + "\n- posZ: " + this.posZ + "\n- Delta: " + this.clockDelta + "\n- Speed: " + this.speed);
+        //console.log("Ball info:\n- posX: " + this.posX + "\n- posY: " + this.posY + "\n- posZ: " + this.posZ + "\n- Delta: " + this.clockDelta + "\n- Speed: " + this.speed);
     }
 
     PhysicsObject.prototype.updateSpeed = function (Speed) {

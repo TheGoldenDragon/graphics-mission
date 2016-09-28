@@ -18,6 +18,7 @@
 
     var ball1, camera, controls, scene, renderer, whiteball, rotationVector, speed, physics, raycaster, clock, whiteDirection, poolGroup, cue, rotationPerFrame, speedVariable, ball1Group, ball1Direction;
 
+	var collisionItems = [];
     var mouse = new THREE.Vector2();
 
     document.addEventListener('mousemove', onDocumentMouseMove, true);
@@ -28,10 +29,9 @@
     render(); 
     
     function render() {
+		
         requestAnimationFrame(render);
-
         whiteballPhysics.updateData(whiteball.position, whiteDirection, clock.getDelta());
-
         whiteball.rotation.setFromVector3(whiteball.rotation.toVector3().add(rotationVector));
 
         //newPos function returns array: posX, posY, posZ, speed
@@ -39,33 +39,31 @@
         whiteball.position.x = whiteballXZ[0];
         whiteball.position.z = whiteballXZ[2];
 
-        raycaster.set(whiteball.position, whiteDirection);
-
-        var intersections = raycaster.intersectObjects(poolGroup.children);
-        //var intersectionsBall = raycaster.intersectObjects(ball1.children);
-        var ball1collision = raycaster.intersectObjects(ball1Group.children);
-
-        if (intersections.length > 0) {
-            var intersection = intersections[0];
-
-            if (intersection.distance < 2) {
-                whiteDirection.reflect(intersection.face.normal);
-            }
-        }
-
-        if (ball1collision.length > 0) {
-            var intersection = ball1collision[0];
-
-            if (intersection.distance < 2) {
-                ball1Direction.x += whiteDirection.x;
-                ball1Direction.z += whiteDirection.z;
-
-                whiteDirection.reflect(intersection.face.normal);
-            }
-        }
+        var originPoint = whiteball.position.clone();
+		for (var vertexIndex = 0; vertexIndex < whiteball.geometry.vertices.length; vertexIndex++)
+		{		
+		var localVertex = whiteball.geometry.vertices[vertexIndex].clone();
+		var globalVertex = localVertex.applyMatrix4( whiteball.matrix );
+		var directionVector = globalVertex.sub( whiteball.position );
+		
+		var ray = new THREE.Raycaster( originPoint, directionVector.clone().normalize() );
+		var collisionResult = ray.intersectObjects( collisionItems );
+			if ( collisionResult.length > 0 && collisionResult[0].distance < directionVector.length() ) 
+			{
+				if (collisionResult[0].object.name == "ball1" ){
+				console.log("Jaaa");
+				}
+			 	if (collisionResult[0].object.name == "pooltable" ){
+					whiteDirection.x = whiteDirection.z * -1;
+					whiteDirection.z = whiteDirection.x * -1;
+					console.log(whiteDirection);
+				console.log("nee");
+				}
+				
+			};
+		}	
 
         controls.update();
-
         renderer.render(scene, camera);
     }
 
@@ -171,7 +169,7 @@
         pooltable.receiveShadow = true;
         poolGroup.add(pooltable);
 
-        //Complete pooltable position;
+		//Complete pooltable position;
         poolGroup.position.x = 0;
         poolGroup.position.y = 0;
         poolGroup.position.z = 0;
@@ -404,6 +402,22 @@
         controls.dampingFactor = 0.25;
         controls.enableZoom = true;
         controls.target = whiteball.position;
+		
+		//CollisionItems
+		b1.name = "pooltable";
+		collisionItems.push(b1);
+		b2.name = "pooltable";
+		collisionItems.push(b2);
+		b3.name = "pooltable";
+		collisionItems.push(b3);
+		b4.name = "pooltable";
+		collisionItems.push(b4);
+		pooltable.name = "pooltable";
+		collisionItems.push(pooltable);
+		ball1.name = "ball1"; 
+		collisionItems.push(ball1);
+		
+		
     }
 
     //Space for future reference
