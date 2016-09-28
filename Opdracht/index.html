@@ -18,7 +18,87 @@
 
     var ball1, camera, controls, scene, renderer, whiteball, rotationVector, speed, physics, raycaster, clock, whiteDirection, poolGroup, cue, rotationPerFrame, speedVariable, ball1Group, ball1Direction;
 
-    init();
+    var mouse = new THREE.Vector2();
+
+    document.addEventListener('mousemove', onDocumentMouseMove, true);
+    document.addEventListener('keydown', onKeyDown, true);
+
+    init(); //create objects e.g.
+
+    render(); 
+    
+    function render() {
+        requestAnimationFrame(render);
+
+        whiteballPhysics.updateData(whiteball.position, whiteDirection, clock.getDelta());
+
+        whiteball.rotation.setFromVector3(whiteball.rotation.toVector3().add(rotationVector));
+
+        //newPos function returns array: posX, posY, posZ, speed
+        var whiteballXZ = whiteballPhysics.calculateNewPos();
+        whiteball.position.x = whiteballXZ[0];
+        whiteball.position.z = whiteballXZ[2];
+
+        raycaster.set(whiteball.position, whiteDirection);
+
+        var intersections = raycaster.intersectObjects(poolGroup.children);
+        //var intersectionsBall = raycaster.intersectObjects(ball1.children);
+        var ball1collision = raycaster.intersectObjects(ball1Group.children);
+
+        if (intersections.length > 0) {
+            var intersection = intersections[0];
+
+            if (intersection.distance < 2) {
+                whiteDirection.reflect(intersection.face.normal);
+            }
+        }
+
+        if (ball1collision.length > 0) {
+            var intersection = ball1collision[0];
+
+            if (intersection.distance < 2) {
+                ball1Direction.x += whiteDirection.x;
+                ball1Direction.z += whiteDirection.z;
+
+                whiteDirection.reflect(intersection.face.normal);
+            }
+        }
+
+        controls.update();
+
+        renderer.render(scene, camera);
+    }
+
+    function onKeyDown(event) {
+        event.preventDefault();
+
+        var x = whiteballPhysics.returnData();
+        var ballSpeed = x[3];
+        //var keyCode = event.which;
+        if (ballSpeed <= 0) {
+            switch (event.keyCode) {
+                case 32:
+                    var cameraVector = new THREE.Vector3(0, 0, -1);
+                    camera.getWorldDirection(cameraVector);
+
+                    //settings ball speed to 30
+                    whiteballPhysics.updateSpeed(30);
+                    whiteDirection.x = cameraVector.x;
+                    whiteDirection.z = cameraVector.z;
+                    rotationPerFrame = 0.05;
+                    cue.position.z = 100;
+                    controls.target = poolGroup.position;
+                    break;
+            }
+        }
+    }
+
+    function onDocumentMouseMove(event) {
+        event.preventDefault();
+
+        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    }
 
     function init() {
 
@@ -112,6 +192,7 @@
         whiteball.geometry.dynamic = true;
         whiteball.castShadow = true;
         whiteball.receiveShadow = true;
+        whiteball.name = "playerBall";
         whiteballPhysics = new PhysicsObject(whiteball);
         scene.add(whiteball);
 
@@ -321,87 +402,12 @@
         //controls.addEventListener( 'change', render ); // add this only if there is no animation loop (requestAnimationFrame)
         controls.enableDamping = true;
         controls.dampingFactor = 0.25;
-        controls.enableZoom = false;
+        controls.enableZoom = true;
         controls.target = whiteball.position;
     }
 
-    function render() {
-        requestAnimationFrame(render);
-
-        whiteballPhysics.updateData(whiteball.position.x, whiteball.position.y, whiteball.position.z, clock.getDelta());
-
-        whiteball.rotation.setFromVector3(whiteball.rotation.toVector3().add(rotationVector));
-
-        //newPos function returns array: posX, posY, posZ, speed
-        var whiteballXZ = whiteballPhysics.calculateNewPos(whiteDirection.x, whiteDirection.z, clock.getDelta());
-        whiteball.position.x = whiteballXZ[0];
-        whiteball.position.z = whiteballXZ[2];
-
-        raycaster.set(whiteball.position, whiteDirection);
-
-        var intersections = raycaster.intersectObjects(poolGroup.children);
-        //var intersectionsBall = raycaster.intersectObjects(ball1.children);
-        var ball1collision = raycaster.intersectObjects(ball1Group.children);
-
-        if (intersections.length > 0) {
-            var intersection = intersections[0];
-
-            if (intersection.distance < 2) {
-                whiteDirection.reflect(intersection.face.normal);
-            }
-        }
-
-        if (ball1collision.length > 0) {
-            var intersection = ball1collision[0];
-
-            if (intersection.distance < 2) {
-                ball1Direction.x += whiteDirection.x;
-                ball1Direction.z += whiteDirection.z;
-
-
-                whiteDirection.reflect(intersection.face.normal);
-            }
-        }
-
-
-        controls.update();
-
-     
-        renderer.render(scene, camera);
-
-    }
-
-    var mouse = new THREE.Vector2();
-
-    //In the making
-    document.addEventListener('keydown', onKeyDown, true);
-
-    function onKeyDown(event) {
-        event.preventDefault();
-
-        var x = whiteballPhysics.returnData();
-        var ballSpeed = x[3];
-        //var keyCode = event.which;
-        if (ballSpeed <= 0) {
-            switch (event.keyCode) {
-                case 32:
-                    var cameraVector = new THREE.Vector3(0, 0, -1);
-                    camera.getWorldDirection(cameraVector);
-
-                    //settings ball speed to 30
-                    whiteballPhysics.updateSpeed(30);
-                    whiteDirection.x = cameraVector.x;
-                    whiteDirection.z = cameraVector.z;
-                    rotationPerFrame = 0.05;
-                    cue.position.z = 100;
-                    controls.target = poolGroup.position;
-                    break;
-            }
-        }
-
-    }
-
-    /*
+    //Space for future reference
+     /*
     function strokeBall() {
     if (speedVariable >= 0.2) {
     speedVariable -= 0.1;
@@ -420,20 +426,6 @@
     }
     return speedVariable;
     }*/
-
-
-
-    document.addEventListener('mousemove', onDocumentMouseMove, true);
-
-    function onDocumentMouseMove(event) {
-        event.preventDefault();
-
-        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-    }
-
-    render();
-
 	</script>
 </body>
 </html>

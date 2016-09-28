@@ -3,6 +3,9 @@ var posX;
 var posY;
 var posZ;
 var speed;
+var dirX;
+var dirY;
+var dirZ;
 var clockDelta;
 
 function PhysicsObject(ThreeObject) {
@@ -10,21 +13,26 @@ function PhysicsObject(ThreeObject) {
         this.posX = 0;
         this.posY = 0;
         this.posZ = 0;
-        this.speed = 0.0;
-        this.clockDelta = 0.0;
+        this.speed = 0;
+        this.dirX = 0;
+        this.dirY = 0;
+        this.dirZ = 0;
+        this.clockDelta = 0;
 
     }
 
-    PhysicsObject.prototype.updateData = function (PositionX, PositionY, PositionZ, ClockDelta) {
-        this.posX = PositionX;
-        this.posY = PositionY;
-        this.posZ = PositionZ;
+    PhysicsObject.prototype.updateData = function (PositionXYZ, DirectionXYZ, ClockDelta) {
+        this.posX = PositionXYZ.x;
+        this.posY = PositionXYZ.y;
+        this.posZ = PositionXYZ.z;
+        this.updateSpeed(null); //null - causes ball to slow down
+        this.dirX = DirectionXYZ.x;
+        this.dirY = DirectionXYZ.y;
+        this.dirZ = DirectionXYZ.z;
         this.clockDelta = ClockDelta;
 
-        this.updateSpeed(null);
-
         //debugging
-        console.log("Ball info:\n- posX: " + this.posX + "\n- posY: " + this.posZ + "\n- posZ: " + this.posZ + "\n- Delta: " + this.clockDelta + "\n- Speed: " + this.speed);
+        console.log("Ball info:\n- posX: " + this.posX + "\n- posY: " + this.posY + "\n- posZ: " + this.posZ + "\n- Delta: " + this.clockDelta + "\n- Speed: " + this.speed);
     }
 
     PhysicsObject.prototype.updateSpeed = function (Speed) {
@@ -56,18 +64,15 @@ function PhysicsObject(ThreeObject) {
         return [this.posX, this.posY, this.posZ, this.speed];
     }
 
-    PhysicsObject.prototype.calculateNewPos = function (dirX, dirZ) {
-        var oldX = this.posX;
-        var oldZ = this.posZ;
-        var currentSpeed = this.speed * this.clockDelta;
+    PhysicsObject.prototype.calculateNewPos = function () {
+        //Not including Y because it's not needed
+        var translateX = (this.speed * this.clockDelta) * this.dirX;
+        var translateY = (this.speed * this.clockDelta) * this.dirY;
+        var translateZ = (this.speed * this.clockDelta) * this.dirZ;
 
-
-        var translateX = currentSpeed * dirX;
-        var translateZ = currentSpeed * dirZ;
-
-
-        this.posX = oldX + translateX;
-        this.posZ = oldZ + translateZ;
+        this.posX += translateX;
+        this.posY += translateY;
+        this.posZ += translateZ;
 
         return this.returnData();
     }
