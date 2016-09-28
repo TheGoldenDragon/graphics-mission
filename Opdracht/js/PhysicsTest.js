@@ -21,60 +21,54 @@ function PhysicsObject(ThreeObject) {
         this.posZ = PositionZ;
         this.clockDelta = ClockDelta;
 
-        var result = this.updateSpeed(null);
-        console.log(result);
-        this.speed = result;
+        this.updateSpeed(null);
 
+        //debugging
         console.log("Ball info:\n- posX: " + this.posX + "\n- posY: " + this.posZ + "\n- posZ: " + this.posZ + "\n- Delta: " + this.clockDelta + "\n- Speed: " + this.speed);
     }
 
     PhysicsObject.prototype.updateSpeed = function (Speed) {
         if (Speed != null) {
-            return Speed;
+            this.speed = Speed;
 
         }
         else {
             var currentSpeed = this.speed;
-            var currentDeltaTime = this.clockDelta;
+
             if (currentSpeed >= 0.2) {
-                currentSpeed -= (0.1);
+                currentSpeed -= 3 * this.clockDelta;
             }
+
             if (currentSpeed > 0 && currentSpeed < 0.2) {
-                currentSpeed -= (0.1);
-                //camera.position.x = posX + 40;
-                //camera.position.y = posY + 30;
-                //camera.position.z = posZ + 30;
+                currentSpeed -= 3 * this.clockDelta;
             }
+
             if (currentSpeed <= 0) {
+                currentSpeed = 0;
             }
-            //console.log(currentSpeed);
-            return currentSpeed;
+            this.speed = currentSpeed;
         }
 
 
     }
 
     PhysicsObject.prototype.returnData = function () {
-        var tempX = this.posX;
-        var tempZ = this.posZ;
-        var tempSpeed = this.speed;
-        return [tempX, tempZ, tempSpeed];
+        return [this.posX, this.posY, this.posZ, this.speed];
     }
 
-    PhysicsObject.prototype.calculateNewPos = function (dirX, dirZ, clockDelta) {
+    PhysicsObject.prototype.calculateNewPos = function (dirX, dirZ) {
         var oldX = this.posX;
         var oldZ = this.posZ;
-        var currentSpeed = this.speed;
+        var currentSpeed = this.speed * this.clockDelta;
 
 
-        var translateX = currentSpeed * dirX * clockDelta;
-        var translateZ = currentSpeed * dirZ * clockDelta;
+        var translateX = currentSpeed * dirX;
+        var translateZ = currentSpeed * dirZ;
 
 
-        var newX = oldX + translateX;
-        var newZ = oldZ + translateZ;
+        this.posX = oldX + translateX;
+        this.posZ = oldZ + translateZ;
 
-        this.updateData(newX, this.posY, newZ, this.clockData);
         return this.returnData();
     }
 

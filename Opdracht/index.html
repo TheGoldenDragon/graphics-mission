@@ -328,13 +328,14 @@
     function render() {
         requestAnimationFrame(render);
 
-        whiteball.rotation.setFromVector3(whiteball.rotation.toVector3().add(rotationVector));
-        //whiteball.position.add(speed.copy(whiteDirection).multiplyScalar(clock.getDelta() * strokeBall()));
-        //var xz = whiteballPhysics.calculateNewPos(whiteball.position.x, whiteball.position.z, 30 * clock.getDelta() * strokeBall(), whiteballDirection.x, whiteballDirection.z);
-        var xz = whiteballPhysics.calculateNewPos(whiteDirection.x, whiteDirection.z, clock.getDelta());
+        whiteballPhysics.updateData(whiteball.position.x, whiteball.position.y, whiteball.position.z, clock.getDelta());
 
-        whiteball.position.x = xz[0];
-        whiteball.position.z = xz[1];
+        whiteball.rotation.setFromVector3(whiteball.rotation.toVector3().add(rotationVector));
+
+        //newPos function returns array: posX, posY, posZ, speed
+        var whiteballXZ = whiteballPhysics.calculateNewPos(whiteDirection.x, whiteDirection.z, clock.getDelta());
+        whiteball.position.x = whiteballXZ[0];
+        whiteball.position.z = whiteballXZ[2];
 
         raycaster.set(whiteball.position, whiteDirection);
 
@@ -362,11 +363,10 @@
             }
         }
 
-        whiteballPhysics.updateData(whiteball.position.x, whiteball.position.y, whiteball.position.z, clock.getDelta());
 
         controls.update();
 
-        
+     
         renderer.render(scene, camera);
 
     }
@@ -380,7 +380,7 @@
         event.preventDefault();
 
         var x = whiteballPhysics.returnData();
-        var ballSpeed = x[2];
+        var ballSpeed = x[3];
         //var keyCode = event.which;
         if (ballSpeed <= 0) {
             switch (event.keyCode) {
