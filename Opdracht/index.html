@@ -331,7 +331,7 @@
         whiteball.rotation.setFromVector3(whiteball.rotation.toVector3().add(rotationVector));
         //whiteball.position.add(speed.copy(whiteDirection).multiplyScalar(clock.getDelta() * strokeBall()));
         //var xz = whiteballPhysics.calculateNewPos(whiteball.position.x, whiteball.position.z, 30 * clock.getDelta() * strokeBall(), whiteballDirection.x, whiteballDirection.z);
-        var xz = whiteballPhysics.calculateNewPos(whiteball.position.x, whiteball.position.z, (clock.getDelta() * strokeBall()), whiteDirection.x, whiteDirection.z);
+        var xz = whiteballPhysics.calculateNewPos(whiteDirection.x, whiteDirection.z, clock.getDelta());
 
         whiteball.position.x = xz[0];
         whiteball.position.z = xz[1];
@@ -362,9 +362,13 @@
             }
         }
 
+        whiteballPhysics.updateData(whiteball.position.x, whiteball.position.y, whiteball.position.z, clock.getDelta());
+
         controls.update();
 
+        
         renderer.render(scene, camera);
+
     }
 
     var mouse = new THREE.Vector2();
@@ -375,14 +379,17 @@
     function onKeyDown(event) {
         event.preventDefault();
 
-        var ballSpeed = strokeBall();
+        var x = whiteballPhysics.returnData();
+        var ballSpeed = x[2];
         //var keyCode = event.which;
         if (ballSpeed <= 0) {
             switch (event.keyCode) {
                 case 32:
                     var cameraVector = new THREE.Vector3(0, 0, -1);
                     camera.getWorldDirection(cameraVector);
-                    speedVariable = 30;
+
+                    //settings ball speed to 30
+                    whiteballPhysics.updateSpeed(30);
                     whiteDirection.x = cameraVector.x;
                     whiteDirection.z = cameraVector.z;
                     rotationPerFrame = 0.05;
@@ -394,24 +401,25 @@
 
     }
 
+    /*
     function strokeBall() {
-        if (speedVariable > 0) {
-            speedVariable -= 0.1;
-        }
-        else if (speedVariable > -0.1 && speedVariable < 0.1) {
-            speedVariable -= 0.1;
-            controls.target = whiteball.position;
-            camera.position.y = whiteball.position.y + 40;
-            camera.position.x = whiteball.position.x + 30;
-            camera.position.z = whiteball.position.z + 30;
-        }
-        else if (speedVariable < 0) {
-            cue.position.z = 0.1;
-
-            controls.target = whiteball.position;
-        }
-        return speedVariable;
+    if (speedVariable >= 0.2) {
+    speedVariable -= 0.1;
     }
+    else if (speedVariable > 0 && speedVariable < 0.2) {
+    speedVariable -= 0.1;
+    controls.target = whiteball.position;
+    camera.position.y = whiteball.position.y + 40;
+    camera.position.x = whiteball.position.x + 30;
+    camera.position.z = whiteball.position.z + 30;
+    }
+    else if (speedVariable <= 0) {
+    cue.position.z = 0.1;
+
+    controls.target = whiteball.position;
+    }
+    return speedVariable;
+    }*/
 
 
 
@@ -423,9 +431,6 @@
         mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
         mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
     }
-
-
-
 
     render();
 

@@ -1,18 +1,40 @@
-(function (global, factory) {
-    typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
-	typeof define === 'function' && define.amd ? define(['exports'], factory) :
-	(factory((global.PhysicsTest = global.PhysicsTest || {})));
-} (this, (function (exports) {
-    'use strict';
+var threeObject, positionX, positionZ, directionX, directionZ, speed;
 
-    function PhysicsTest(ThreeObject) {
+function PhysicsObject(ThreeObject, PositionX, PositionZ, Speed, DirectionX, DirectionZ) {
         this.threeObject = ThreeObject;
+        this.positionX = PositionX;
+        this.positionZ = PositionZ;
+        this.directionX = 0;
+        this.directionZ = 0;
+        this.speed = 0;
+        console.log("X: " + this.positionX + "\nY: " + this.positionZ + "\nSpeed: " + this.speed + "\ndirX: " + this.directionX + "\ndirZ: " + this.directionZ);
 
     }
-    PhysicsTest.prototype.Test = function Test() {
-        console.log("hoi")
-    };
 
-    exports.Test = Test;
-    exports.PhysicsTest = PhysicsTest;
-})));
+    PhysicsObject.prototype.updateCoords = function (PositionX, PositionZ) {
+        positionX = PositionX;
+        positionZ = PositionZ;
+        console.log("X: " + this.positionX + "\nY: " + this.positionZ);
+    }
+
+    PhysicsObject.prototype.updateBallData = function (PositionX, PositionZ, Speed, DirectionX, DirectionZ) {
+        
+        console.log("X: " + this.positionX + "\nY: " + this.positionZ + "\nSpeed: " + this.speed + "\ndirX: " + this.directionX + "\ndirZ: " + this.directionZ);this.positionX = PositionX;
+        this.positionZ = PositionZ;
+        this.speed = Speed;
+        this.directionX = DirectionX;
+        this.directionZ = DirectionZ;
+        
+        console.log("X: " + this.positionX + "\nY: " + this.positionZ + "\nSpeed: " + this.speed + "\ndirX: " + this.directionX + "\ndirZ: " + this.directionZ);
+    }
+
+
+
+    PhysicsObject.prototype.calculateNewPos = function () {
+
+        var newX = 0;
+        var newZ = 0;
+        newX = this.directionX >= 0 ? newX + (speed * directionX) : newX - (speed * directionX);
+        newZ = this.directionZ >= 0 ? newZ + (speed * directionZ) : newZ - (speed * directionZ);
+        return [newX, newZ];
+    }
