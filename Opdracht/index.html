@@ -16,9 +16,10 @@
 <script>
     if (!Detector.webgl) Detector.addGetWebGLMessage();
 
-    var ball1, camera, controls, scene, renderer, whiteball, rotationVector, speed, physics, raycaster, clock, whiteDirection, poolGroup, cue, rotationPerFrame, speedVariable, ball1Group, ball1Direction;
+    var camera, controls, scene, renderer, whiteball, rotationVector, physics, raycaster, clock, poolGroup, cue, rotationPerFrame, speedVariable, ballGroup, ball1Direction;
 
-	var collisionItems = [];
+    var collisionItems = [];
+    var physicsItems = [];
     var mouse = new THREE.Vector2();
 
     document.addEventListener('mousemove', onDocumentMouseMove, true);
@@ -26,42 +27,45 @@
 
     init(); //create objects e.g.
 
-    render(); 
-    
+    render();
+
     function render() {
-		
+
         requestAnimationFrame(render);
-        whiteballPhysics.updateData(whiteball.position, whiteDirection, clock.getDelta());
-        whiteball.rotation.setFromVector3(whiteball.rotation.toVector3().add(rotationVector));
+
+        //Whiteball
+        whiteballPhysics.updateData(whiteball.position, clock.getDelta());
 
         //newPos function returns array: posX, posY, posZ, speed
         var whiteballXZ = whiteballPhysics.calculateNewPos();
         whiteball.position.x = whiteballXZ[0];
         whiteball.position.z = whiteballXZ[2];
 
-        var originPoint = whiteball.position.clone();
-		for (var vertexIndex = 0; vertexIndex < whiteball.geometry.vertices.length; vertexIndex++)
-		{		
-		var localVertex = whiteball.geometry.vertices[vertexIndex].clone();
-		var globalVertex = localVertex.applyMatrix4( whiteball.matrix );
-		var directionVector = globalVertex.sub( whiteball.position );
-		
-		var ray = new THREE.Raycaster( originPoint, directionVector.clone().normalize() );
-		var collisionResult = ray.intersectObjects( collisionItems );
-			if ( collisionResult.length > 0 && collisionResult[0].distance < directionVector.length() ) 
-			{
-				if (collisionResult[0].object.name == "ball1" ){
-				console.log("Jaaa");
-				}
-			 	if (collisionResult[0].object.name == "pooltable" ){
-					whiteDirection.x = whiteDirection.z * -1;
-					whiteDirection.z = whiteDirection.x * -1;
-					console.log(whiteDirection);
-				console.log("nee");
-				}
-				
-			};
-		}	
+        for (i = 0; i < physicsItems.length; i++) {
+            //Only do this when object is moving
+            //if(physicsItems[i])
+            var originPoint = physicsItems[i].position.clone();
+            for (var vertexIndex = 0; vertexIndex < physicsItems[i].geometry.vertices.length; vertexIndex++) {
+                var localVertex = physicsItems[i].geometry.vertices[vertexIndex].clone();
+                var globalVertex = localVertex.applyMatrix4(physicsItems[i].matrix);
+                var directionVector = globalVertex.sub(physicsItems[i].position);
+
+                //Collision with static objects
+                var ray = new THREE.Raycaster(originPoint, directionVector.clone().normalize());
+                var collisionResult = ray.intersectObjects(collisionItems);
+                if (collisionResult.length > 0 && collisionResult[0].distance < directionVector.length()) {
+                    console.log("Ja, " + physicsItems[i].name + " met: " + collisionResult[0].object.name);
+
+                }
+
+                //Collision with physics objects
+                collisionResult = ray.intersectObjects(physicsItems);
+                if (collisionResult.length > 0 && collisionResult[0].distance < directionVector.length()) {
+                    console.log("Ja, " + physicsItems[i].name + " met: " + collisionResult[0].object.name);
+                }
+            }
+        };
+
 
         controls.update();
         renderer.render(scene, camera);
@@ -81,8 +85,7 @@
 
                     //settings ball speed to 30
                     whiteballPhysics.updateSpeed(30);
-                    whiteDirection.x = cameraVector.x;
-                    whiteDirection.z = cameraVector.z;
+                    whiteballPhysics.updateDirection(cameraVector.x, cameraVector.y, cameraVector.z);
                     rotationPerFrame = 0.05;
                     cue.position.z = 100;
                     controls.target = poolGroup.position;
@@ -169,7 +172,7 @@
         pooltable.receiveShadow = true;
         poolGroup.add(pooltable);
 
-		//Complete pooltable position;
+        //Complete pooltable position;
         poolGroup.position.x = 0;
         poolGroup.position.y = 0;
         poolGroup.position.z = 0;
@@ -191,95 +194,116 @@
         whiteball.castShadow = true;
         whiteball.receiveShadow = true;
         whiteball.name = "playerBall";
-        whiteballPhysics = new PhysicsObject(whiteball);
+        
+        var tempDirection = new THREE.Vector3();
+        tempDirection.z = 0;
+        tempDirection.x = 0;
+        tempDirection.normalize();
+
+        whiteballPhysics = new PhysicsObject(whiteball, tempDirection);
+        physicsItems.push(whiteball);
         scene.add(whiteball);
 
 
 
-        ball1Group = new THREE.Group();
+        ballGroup = new THREE.Group();
         //Colored Balls
         //First row
         var ball1Material = new THREE.MeshBasicMaterial({ color: 0xffffaa });
-        ball1 = new THREE.Mesh(BallGeometry, ball1Material);
+        var ball1 = new THREE.Mesh(BallGeometry, ball1Material);
         ball1.position.set(0, 1.5, -18);
-        ball1Group.add(ball1);
-        ball1Physics = new PhysicsObject(ball1);
-        //scene.add(ball1);
-        scene.add(ball1Group);
+        ballGroup.add(ball1);
+
         //Second row
         var ball2Material = new THREE.MeshBasicMaterial({ color: 0xffffff });
         var ball2 = new THREE.Mesh(BallGeometry, ball2Material);
         ball2.position.set(-1.1, 1.5, -20);
-        scene.add(ball2);
+        ballGroup.add(ball2);
 
         var ball3Material = new THREE.MeshBasicMaterial({ color: 0xffffff });
         var ball3 = new THREE.Mesh(BallGeometry, ball3Material);
         ball3.position.set(1.1, 1.5, -20);
-        scene.add(ball3);
+        ballGroup.add(ball3);
 
         //Third row
         var ball4Material = new THREE.MeshBasicMaterial({ color: 0xffffff });
         var ball4 = new THREE.Mesh(BallGeometry, ball4Material);
         ball4.position.set(-2.1, 1.5, -22);
-        scene.add(ball4);
+        ballGroup.add(ball4);
 
         var ball5Material = new THREE.MeshBasicMaterial({ color: 0xffffff });
         var ball5 = new THREE.Mesh(BallGeometry, ball5Material);
         ball5.position.set(0, 1.5, -22);
-        scene.add(ball5);
+        ballGroup.add(ball5);
 
         var ball6Material = new THREE.MeshBasicMaterial({ color: 0xffffff });
         var ball6 = new THREE.Mesh(BallGeometry, ball6Material);
         ball6.position.set(2.1, 1.5, -22);
-        scene.add(ball6);
+        ballGroup.add(ball6);
 
         //Fourth row
         var ball7Material = new THREE.MeshBasicMaterial({ color: 0xffffff });
         var ball7 = new THREE.Mesh(BallGeometry, ball7Material);
         ball7.position.set(3.2, 1.5, -24);
-        scene.add(ball7);
+        ballGroup.add(ball7);
 
         var ball8Material = new THREE.MeshBasicMaterial({ color: 0xffffff });
         var ball8 = new THREE.Mesh(BallGeometry, ball8Material);
-        ball8.position.set(1.1, 1.5, -24);
-        scene.add(ball8);
+        ball8.position.set(1, 1.5, -24);
+        ballGroup.add(ball8);
 
         var ball9Material = new THREE.MeshBasicMaterial({ color: 0xffffff });
         var ball9 = new THREE.Mesh(BallGeometry, ball9Material);
         ball9.position.set(-1.1, 1.5, -24);
-        scene.add(ball9);
+        ballGroup.add(ball9);
 
         var ball10Material = new THREE.MeshBasicMaterial({ color: 0xffffff });
         var ball10 = new THREE.Mesh(BallGeometry, ball10Material);
         ball10.position.set(-3.2, 1.5, -24);
-        scene.add(ball10);
+        ballGroup.add(ball10);
 
         //Fifth row
         var ball11Material = new THREE.MeshBasicMaterial({ color: 0xffffff });
         var ball11 = new THREE.Mesh(BallGeometry, ball11Material);
         ball11.position.set(-4.3, 1.5, -26);
-        scene.add(ball11);
+        ballGroup.add(ball11);
 
         var ball12Material = new THREE.MeshBasicMaterial({ color: 0xffffff });
         var ball12 = new THREE.Mesh(BallGeometry, ball12Material);
         ball12.position.set(-2.1, 1.5, -26);
-        scene.add(ball12);
+        ballGroup.add(ball12);
 
         var ball13Material = new THREE.MeshBasicMaterial({ color: 0xffffff });
         var ball13 = new THREE.Mesh(BallGeometry, ball13Material);
         ball13.position.set(0, 1.5, -26);
-        scene.add(ball13);
+        ballGroup.add(ball13);
 
         var ball14Material = new THREE.MeshBasicMaterial({ color: 0xffffff });
         var ball14 = new THREE.Mesh(BallGeometry, ball14Material);
         ball14.position.set(2.1, 1.5, -26);
-        scene.add(ball14);
+        ballGroup.add(ball14);
 
         var ball15Material = new THREE.MeshBasicMaterial({ color: 0xffffff });
         var ball15 = new THREE.Mesh(BallGeometry, ball15Material);
         ball15.position.set(4.3, 1.5, -26);
-        scene.add(ball15);
+        ballGroup.add(ball15);
 
+        for (i = 0; i < ballGroup.children.length; i++) {
+            ballGroup.children[i].name = "ball" + (i + 1);
+            physicsItems.push(ballGroup.children[i]);
+            PhysicsObject["ball" + i + "Physics"] = new PhysicsObject(ballGroup.children[i], tempDirection);
+
+            PhysicsObject["ball" + i + "Physics"].threeObject;
+
+            /* HELP
+            (THREE.Vector3["ball" + i + "Direction"] = new THREE.Vector3()).name = "ball" + i + "Direction";
+            var temp = scene.getObjectByName("ball" + i + "Direction");
+            console.log(temp);
+            temp.x = 0;
+            temp.z = 0;
+            temp.normalize();*/
+        }
+        scene.add(ballGroup);
 
         camera.add(cue);
         cue.position.set(1.7, -0.4, -20);
@@ -287,20 +311,6 @@
         cue.rotation.y = 0;
         cue.rotation.z = 0.1;
         cue.position.applyMatrix4(camera.matrixWorld);
-
-
-        //Direction of the moving ball.
-        whiteDirection = new THREE.Vector3();
-        whiteDirection.z = 0;
-        whiteDirection.x = 0;
-        whiteDirection.normalize();
-        rotationPerFrame = 0;
-        rotationVector = new THREE.Vector3(rotationPerFrame, rotationPerFrame, rotationPerFrame);
-
-        ball1Direction = new THREE.Vector3();
-        ball1Direction.z = 0;
-        ball1Direction.x = 0;
-        ball1Direction.normalize();
 
         //Elements need for movement and collision.
         raycaster = new THREE.Raycaster();
@@ -402,26 +412,24 @@
         controls.dampingFactor = 0.25;
         controls.enableZoom = true;
         controls.target = whiteball.position;
-		
-		//CollisionItems
-		b1.name = "pooltable";
-		collisionItems.push(b1);
-		b2.name = "pooltable";
-		collisionItems.push(b2);
-		b3.name = "pooltable";
-		collisionItems.push(b3);
-		b4.name = "pooltable";
-		collisionItems.push(b4);
-		pooltable.name = "pooltable";
-		collisionItems.push(pooltable);
-		ball1.name = "ball1"; 
-		collisionItems.push(ball1);
-		
-		
+
+        //CollisionItems
+        b1.name = "pooltableBorder";
+        collisionItems.push(b1);
+        b2.name = "pooltableBorder";
+        collisionItems.push(b2);
+        b3.name = "pooltableBorder";
+        collisionItems.push(b3);
+        b4.name = "pooltableBorder";
+        collisionItems.push(b4);
+        pooltable.name = "pooltable";
+        collisionItems.push(pooltable);
+
+
     }
 
     //Space for future reference
-     /*
+    /*
     function strokeBall() {
     if (speedVariable >= 0.2) {
     speedVariable -= 0.1;

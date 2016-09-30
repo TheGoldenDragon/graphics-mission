@@ -3,32 +3,28 @@ var posX;
 var posY;
 var posZ;
 var speed;
-var dirX;
-var dirY;
-var dirZ;
+var dirXYZ;
 var clockDelta;
 
-function PhysicsObject(ThreeObject) {
+function PhysicsObject(ThreeObject, ObjectDirection) {
         this.threeObject = ThreeObject;
         this.posX = 0;
         this.posY = 0;
         this.posZ = 0;
         this.speed = 0;
-        this.dirX = 0;
-        this.dirY = 0;
-        this.dirZ = 0;
+        this.dirXYZ = ObjectDirection; //Vector3
         this.clockDelta = 0;
 
     }
 
-    PhysicsObject.prototype.updateData = function (PositionXYZ, DirectionXYZ, ClockDelta) {
+    PhysicsObject.prototype.updateData = function (PositionXYZ, ClockDelta) {
         this.posX = PositionXYZ.x;
         this.posY = PositionXYZ.y;
         this.posZ = PositionXYZ.z;
         this.updateSpeed(null); //null - causes ball to slow down
-        this.dirX = DirectionXYZ.x;
-        this.dirY = DirectionXYZ.y;
-        this.dirZ = DirectionXYZ.z;
+        //this.dirX = DirectionXYZ.x;
+        //this.dirY = DirectionXYZ.y;
+        //this.dirZ = DirectionXYZ.z;
         this.clockDelta = ClockDelta;
 
         //debugging
@@ -60,8 +56,18 @@ function PhysicsObject(ThreeObject) {
 
     }
 
+    PhysicsObject.prototype.updateDirection = function (DirX, DirY, DirZ) {
+        this.dirX = DirX;
+        this.dirY = DirY;
+        this.dirZ = DirZ;
+    }
+
     PhysicsObject.prototype.returnData = function () {
         return [this.posX, this.posY, this.posZ, this.speed];
+    }
+
+    PhysicsObject.prototype.returnThreeObject = function () {
+        return [this.threeObject];
     }
 
     PhysicsObject.prototype.calculateNewPos = function () {
