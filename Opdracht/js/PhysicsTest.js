@@ -1,4 +1,5 @@
 var threeObject;
+var threeObjectName
 var posX;
 var posY;
 var posZ;
@@ -8,6 +9,7 @@ var clockDelta;
 
 function PhysicsObject(ThreeObject, ObjectDirection) {
         this.threeObject = ThreeObject;
+        this.threeObjectName = ThreeObject.name;
         this.posX = 0;
         this.posY = 0;
         this.posZ = 0;
@@ -34,7 +36,6 @@ function PhysicsObject(ThreeObject, ObjectDirection) {
     PhysicsObject.prototype.updateSpeed = function (Speed) {
         if (Speed != null) {
             this.speed = Speed;
-
         }
         else {
             var currentSpeed = this.speed;
@@ -57,9 +58,9 @@ function PhysicsObject(ThreeObject, ObjectDirection) {
     }
 
     PhysicsObject.prototype.updateDirection = function (DirX, DirY, DirZ) {
-        this.dirX = DirX;
-        this.dirY = DirY;
-        this.dirZ = DirZ;
+        this.dirXYZ.x = DirX;
+        this.dirXYZ.y = DirY;
+        this.dirXYZ.z = DirZ;
     }
 
     PhysicsObject.prototype.returnData = function () {
@@ -67,14 +68,14 @@ function PhysicsObject(ThreeObject, ObjectDirection) {
     }
 
     PhysicsObject.prototype.returnThreeObject = function () {
-        return [this.threeObject];
+        return this.threeObject;
     }
 
     PhysicsObject.prototype.calculateNewPos = function () {
         //Not including Y because it's not needed
-        var translateX = (this.speed * this.clockDelta) * this.dirX;
-        var translateY = (this.speed * this.clockDelta) * this.dirY;
-        var translateZ = (this.speed * this.clockDelta) * this.dirZ;
+        var translateX = (this.speed * this.clockDelta) * this.dirXYZ.x;
+        var translateY = (this.speed * this.clockDelta) * this.dirXYZ.y;
+        var translateZ = (this.speed * this.clockDelta) * this.dirXYZ.z;
 
         this.posX += translateX;
         this.posY += translateY;
