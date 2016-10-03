@@ -198,7 +198,27 @@
         poolGroup.position.x = 0;
         poolGroup.position.y = 0;
         poolGroup.position.z = 0;
+		
+		
+		//Load Textures
+		var loader = new THREE.TextureLoader();
 
+		var textureball1 = loader.load('1.jpg',function ( ball1 ) {});
+		var textureball2 =loader.load('2.jpg',function ( ball2 ) {});
+		var textureball3 =loader.load('3.jpg',function ( ball3 ) {});
+		var textureball4 =loader.load('4.jpg',function ( ball4 ) {});
+		var textureball5 =loader.load('5.jpg',function ( ball5 ) {});
+		var textureball6 =loader.load('6.jpg',function ( ball6 ) {});
+		var textureball7 =loader.load('7.jpg',function ( ball7 ) {});
+		var textureball8 =loader.load('8.jpg',function ( ball8 ) {});
+		var textureball9 =loader.load('9.jpg',function ( ball9 ) {});
+		var textureball10 =loader.load('10.jpg',function ( ball10 ) {});
+		var textureball11 =loader.load('11.jpg',function ( ball11 ) {});
+		var textureball12 =loader.load('12.jpg',function ( ball12 ) {});
+		var textureball13 =loader.load('13.jpg',function ( ball13 ) {});
+		var textureball14 =loader.load('14.jpg',function ( ball14 ) {});
+		var textureball15 =loader.load('15.jpg',function ( ball15 ) {});
+		
         //cue
         var cueGeometry = new THREE.CylinderGeometry(0.1, 0.4, 30);
         var cueColor = new THREE.MeshPhongMaterial({ color: 0xb88b45 });
@@ -208,7 +228,7 @@
 
         //Balls
         //White ball
-        var BallGeometry = new THREE.SphereGeometry(1, 10, 10);
+        var BallGeometry = new THREE.SphereGeometry(1, 15, 15);		
         var wbMaterial = new THREE.MeshPhongMaterial({ color: 0xffffee });
         whiteball = new THREE.Mesh(BallGeometry, wbMaterial);
         whiteball.position.set(0, 1.5, 20);
@@ -232,83 +252,98 @@
         ballGroup = new THREE.Group();
         //Colored Balls
         //First row
-        var ball1Material = new THREE.MeshBasicMaterial({ color: 0xffffaa });
+        var ball1Material = new THREE.MeshPhongMaterial({ map: textureball1 });
         var ball1 = new THREE.Mesh(BallGeometry, ball1Material);
         ball1.position.set(0, 1.5, -18);
+		ball1.rotation.y = -1.5;
         ballGroup.add(ball1);
 
         //Second row
-        var ball2Material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+        var ball2Material = new THREE.MeshPhongMaterial({ map: textureball2 });
         var ball2 = new THREE.Mesh(BallGeometry, ball2Material);
         ball2.position.set(-1.1, 1.5, -20);
+		ball2.rotation.y = -1.5;
         ballGroup.add(ball2);
 
-        var ball3Material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+        var ball3Material = new THREE.MeshPhongMaterial({ map: textureball3 });
         var ball3 = new THREE.Mesh(BallGeometry, ball3Material);
         ball3.position.set(1.1, 1.5, -20);
+		ball3.rotation.y = -1.5;
         ballGroup.add(ball3);
 
         //Third row
-        var ball4Material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+        var ball4Material = new THREE.MeshPhongMaterial({ map: textureball4 });
         var ball4 = new THREE.Mesh(BallGeometry, ball4Material);
         ball4.position.set(-2.1, 1.5, -22);
+		ball4.rotation.y = -1.5;
         ballGroup.add(ball4);
 
-        var ball5Material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+        var ball5Material = new THREE.MeshPhongMaterial({ map: textureball5 });
         var ball5 = new THREE.Mesh(BallGeometry, ball5Material);
         ball5.position.set(0, 1.5, -22);
+		ball5.rotation.y = -1.5;
         ballGroup.add(ball5);
 
-        var ball6Material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+        var ball6Material = new THREE.MeshPhongMaterial({ map: textureball6 });
         var ball6 = new THREE.Mesh(BallGeometry, ball6Material);
         ball6.position.set(2.1, 1.5, -22);
+		ball6.rotation.y = -1.5;
         ballGroup.add(ball6);
 
         //Fourth row
-        var ball7Material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+        var ball7Material = new THREE.MeshPhongMaterial({ map: textureball7 });
         var ball7 = new THREE.Mesh(BallGeometry, ball7Material);
         ball7.position.set(3.2, 1.5, -24);
+		ball7.rotation.y = -1.5;
         ballGroup.add(ball7);
 
-        var ball8Material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+        var ball8Material = new THREE.MeshPhongMaterial({ map: textureball8 });
         var ball8 = new THREE.Mesh(BallGeometry, ball8Material);
         ball8.position.set(1, 1.5, -24);
+		ball8.rotation.y = -1.5;
         ballGroup.add(ball8);
 
-        var ball9Material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+        var ball9Material = new THREE.MeshPhongMaterial({ map: textureball9 });
         var ball9 = new THREE.Mesh(BallGeometry, ball9Material);
         ball9.position.set(-1.1, 1.5, -24);
+		ball9.rotation.y = -1.5;
         ballGroup.add(ball9);
 
-        var ball10Material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+        var ball10Material = new THREE.MeshPhongMaterial({ map: textureball10 });
         var ball10 = new THREE.Mesh(BallGeometry, ball10Material);
         ball10.position.set(-3.2, 1.5, -24);
+		ball10.rotation.y = -1.5;
         ballGroup.add(ball10);
 
         //Fifth row
-        var ball11Material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+        var ball11Material = new THREE.MeshPhongMaterial({ map: textureball11 });
         var ball11 = new THREE.Mesh(BallGeometry, ball11Material);
         ball11.position.set(-4.3, 1.5, -26);
+		ball11.rotation.y = -1.5;
         ballGroup.add(ball11);
 
-        var ball12Material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+        var ball12Material = new THREE.MeshPhongMaterial({ map: textureball12 });
         var ball12 = new THREE.Mesh(BallGeometry, ball12Material);
         ball12.position.set(-2.1, 1.5, -26);
+		ball12.rotation.y = -1.5;
         ballGroup.add(ball12);
 
-        var ball13Material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+        var ball13Material = new THREE.MeshPhongMaterial({ map: textureball13 });
         var ball13 = new THREE.Mesh(BallGeometry, ball13Material);
         ball13.position.set(0, 1.5, -26);
+		ball13.rotation.y = -1.5;
         ballGroup.add(ball13);
 
-        var ball14Material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+        var ball14Material = new THREE.MeshPhongMaterial({ map: textureball14 });
         var ball14 = new THREE.Mesh(BallGeometry, ball14Material);
         ball14.position.set(2.1, 1.5, -26);
+		ball14.rotation.y = -1.5;
         ballGroup.add(ball14);
 
-        var ball15Material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+        var ball15Material = new THREE.MeshPhongMaterial({ map: textureball15 });
         var ball15 = new THREE.Mesh(BallGeometry, ball15Material);
         ball15.position.set(4.3, 1.5, -26);
+		ball15.rotation.y = -1.5;
         ballGroup.add(ball15);
 
         for (i = 0; i < ballGroup.children.length; i++) {
@@ -440,7 +475,9 @@
         collisionItems.push(b4);
         pooltable.name = "pooltable";
         //collisionItems.push(pooltable);
-
+		
+		
+		
 
     }
 
