@@ -6,6 +6,7 @@ var posZ;
 var speed;
 var dirXYZ;
 var clockDelta;
+var lastHitBy;
 
 function PhysicsObject(ThreeObject, ObjectDirection) {
         this.threeObject = ThreeObject;
@@ -16,6 +17,7 @@ function PhysicsObject(ThreeObject, ObjectDirection) {
         this.speed = 0;
         this.dirXYZ = ObjectDirection; //Vector3
         this.clockDelta = 0;
+        this.lastHitBy = null;
 
     }
 
@@ -62,6 +64,37 @@ function PhysicsObject(ThreeObject, ObjectDirection) {
         this.dirXYZ.y = DirY;
         this.dirXYZ.z = DirZ;
     }
+
+    PhysicsObject.prototype.updateHitBy = function (CollisionItem) {
+        if (CollisionItem == null)
+            this.lastHitBy = [];
+        else
+        {
+            for (i = 0; i < this.lastHitBy.length; i++){
+                if (this.lastHitBy[i] == CollisionItem)
+                    return;
+            }
+            this.lastHitBy.push(CollisionItem);
+
+            //console.log("new hit: " + this.threeObjectName + " by: "+ this.lastHitBy);
+        }
+
+    }
+
+    PhysicsObject.prototype.checkIgnore = function (CollisionItem) {
+        if (CollisionItem == null)
+            return false;
+        else
+        {
+            for (i = 0; i < this.lastHitBy.length; i++){
+                if (this.lastHitBy[i] == CollisionItem)
+                    return true;
+            }
+            return false;
+        }
+
+    }
+
 
     PhysicsObject.prototype.returnData = function () {
         return [this.posX, this.posY, this.posZ, this.speed];

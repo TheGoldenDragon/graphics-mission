@@ -34,63 +34,85 @@
 
         requestAnimationFrame(render);
 
-
         var tempDeltaData = clock.getDelta();
+
+		//Clear all previous hit by arrays
+		for (i = 0; i < physicsItemsScript.length; i++){
+			physicsItemsScript[i].updateHitBy(null);
+		}
 
         //ballPhysics
         for (sender = 0; sender < physicsItems.length; sender++) {
-            //Only do this when object is moving
-            if (physicsItemsScript[sender].speed > 0) {
-                var originPoint = physicsItems[sender].position.clone();
-                for (var vertexIndex = 0; vertexIndex < physicsItems[sender].geometry.vertices.length; vertexIndex++) {
-                    var localVertex = physicsItems[sender].geometry.vertices[vertexIndex].clone();
-                    var globalVertex = localVertex.applyMatrix4(physicsItems[sender].matrix);
-                    var directionVector = globalVertex.sub(physicsItems[sender].position);
+            if (physicsItemsScript[sender].speed <= 0)
+            	continue; //If the object is NOT moving skip the object
 
-                    //Collision with physics objects
-                    var ray = new THREE.Raycaster(originPoint, directionVector.clone().normalize());
-                    var collisionResult = ray.intersectObjects(physicsItems);
-                    if (collisionResult.length > 0 && collisionResult[0].distance < directionVector.length()) {
-                        if (physicsItems[sender].name != collisionResult[0].object.name) {
-                            //console.log("Ja, " + physicsItems[sender].name + " met: " + collisionResult[0].object.name);
-                            for (receiver = 0; receiver < physicsItemsScript.length; receiver++) {
-                                if (physicsItemsScript[receiver].threeObjectName == collisionResult[0].object.name) {
-                                    var receiverSpeed = physicsItemsScript[receiver].speed;
-                                    var senderSpeed = physicsItemsScript[sender].speed;
-                                    var receiverDirection = physicsItemsScript[receiver].dirXYZ;
-                                    var senderDirection = physicsItemsScript[sender].dirXYZ;
+			//console.log("--------- new item " + physicsItemsScript[sender].threeObjectName);
+			var originPoint = physicsItems[sender].position.clone();
+			for (var vertexIndex = 0; vertexIndex < physicsItems[sender].geometry.vertices.length; vertexIndex++) {
+				var localVertex = physicsItems[sender].geometry.vertices[vertexIndex].clone();
+				var globalVertex = localVertex.applyMatrix4(physicsItems[sender].matrix);
+				var directionVector = globalVertex.sub(physicsItems[sender].position);
 
-                                    console.log(receiverDirection);
-                                    physicsItemsScript[receiver].updateSpeed(senderSpeed);
-                                    physicsItemsScript[sender].updateSpeed(receiverSpeed);
+				//Collision with physics objects
+				var ray = new THREE.Raycaster(originPoint, directionVector.clone().normalize());
+				var collisionResult = ray.intersectObjects(physicsItems);
+				for (collisionHit = 0; collisionHit < collisionResult.length; collisionHit++) {
+					if (collisionResult.length > 0 && collisionResult[collisionHit].distance < directionVector.length()){
+						//if (physicsItems[sender].name != collisionResult[0].object.name) {
 
-                                    physicsItemsScript[receiver].updateDirection(senderDirection.x, senderDirection.y, senderDirection.z);
-                                    physicsItemsScript[sender].updateDirection(receiverDirection.x, senderDirection.y, senderDirection.z);
-                                    break;
-                                } //else { console.log("test"); }
-                            }
-                        }
-                    }
+						//console.log("Ja, " + physicsItems[sender].name + " met: " + collisionResult[0].object.name);
+						//Search for physicsItem related script
+						for (receiver = 0; receiver < physicsItemsScript.length; receiver++) {
+							if (physicsItemsScript[receiver].threeObjectName == collisionResult[collisionHit].object.name) {
+								var tempIgnore = physicsItemsScript[receiver].checkIgnore(physicsItemsScript[sender].threeObjectName);
+								//console.log(physicsItemsScript[receiver].threeObjectName + "" + physicsItemsScript[sender].lastHitBy);
+								if (tempIgnore == false) {
+									//onsole.log("not ignoring");
+									var receiverSpeed = physicsItemsScript[receiver].speed;
+									var senderSpeed = physicsItemsScript[sender].speed;
+									var receiverDirection = physicsItemsScript[receiver].dirXYZ;
+									var senderDirection = physicsItemsScript[sender].dirXYZ;
 
-                    //Collision with static objects
-                    collisionResult = ray.intersectObjects(collisionItems);
-                    if (collisionResult.length > 0 && collisionResult[0].distance < directionVector.length()) {
-                        //console.log("Ja, " + physicsItems[sender].name + " met: " + collisionResult[0].object.name);
-                        physicsItemsScript[sender].updateSpeed(0);
-                        break;
-                    }
-                }
+									physicsItemsScript[receiver].updateHitBy(physicsItemsScript[sender].threeObjectName);
+									physicsItemsScript[sender].updateHitBy(physicsItemsScript[receiver].threeObjectName);
+
+									physicsItemsScript[receiver].updateSpeed(senderSpeed);
+									physicsItemsScript[sender].updateSpeed(receiverSpeed);
+
+									physicsItemsScript[receiver].updateDirection(senderDirection.x, senderDirection.y, senderDirection.z);
+									physicsItemsScript[sender].updateDirection(receiverDirection.x, senderDirection.y, senderDirection.z);
+								}
+
+
+							} //else { console.log("test"); }
+						}
+					}
+				}
+				//Collision with static objects
+				collisionResult = ray.intersectObjects(collisionItems);
+				for (collisionHit = 0; collisionHit < collisionResult.length; collisionHit++) {
+					if (collisionResult.length > 0 && collisionResult[collisionHit].distance < directionVector.length()) {
+						//console.log("Ja, " + physicsItems[sender].name + " met: " + collisionResult[0].object.name);
+						physicsItemsScript[sender].updateSpeed(0);
+					}
+				}
             }
+
+
         }
 
         for (i = 0; i < physicsItemsScript.length; i++) {
-            if (physicsItemsScript[i].speed > 0) {
-                physicsItemsScript[i].updateData(physicsItems[i].position, tempDeltaData);
+            if (physicsItemsScript[i].speed <= 0)
+            	continue;
 
-                var tempXZ = physicsItemsScript[i].calculateNewPos();
-                physicsItems[i].position.x = tempXZ[0];
-                physicsItems[i].position.z = tempXZ[2];
-            }
+			//console.log("updating: " + physicsItemsScript[i].threeObjectName);
+			physicsItemsScript[i].updateData(physicsItems[i].position, tempDeltaData);
+
+			var tempXZ = physicsItemsScript[i].calculateNewPos();
+			physicsItems[i].position.x = tempXZ[0];
+			physicsItems[i].position.z = tempXZ[2];
+
+
         }
 
         //newPos function returns array: posX, posY, posZ, speed
