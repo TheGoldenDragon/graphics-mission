@@ -1,0 +1,58 @@
+@charset "utf-8";
+/* Style for the poolgame */
+body{
+	background-color:#026809;
+	color:#fff;	
+	overflow:hidden;
+}
+
+#poolgame {
+    padding-right: 0;
+	padding-top:29px;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+}
+.main {width:1517px;height:1126px;float:right;margin-right:5px;margin-top:-50px;
+background-image:url(file:///C|/Users/ROord/Documents/NHL/Jaar%202/Periode%201/Graphics/newest%20Poolgame/graphics-mission/Opdracht/img/background.png);}
+
+.scoreboard{
+	width:400px;
+	height:800px;
+	margin-top:109px;
+	position:fixed;
+	background-color:#079324;
+	margin-left:50px;
+}
+h2 {
+	color:#fff;
+	margin-left:70px;
+}
+.scores{
+	padding:20px;
+}
+.inner p {
+	font-family:"Courier New", Courier, monospace;
+	font-size:20px;
+	font-style:oblique;
+	
+	}
+.inner{
+	font-family:"Palatino Linotype", "Book Antiqua", Palatino, serif;
+	font-size:16px;
+	width:370px;
+	height:720px;
+	border:thin;
+	border-color:#fff;
+	border-style:dashed;
+	margin:0 auto;
+
+}
+
+.logo{
+	margin:0 auto;
+	background-image:url(file:///C|/Users/ROord/Documents/NHL/Jaar%202/Periode%201/Graphics/newest%20Poolgame/graphics-mission/Opdracht/img/logo.png);
+	margin-top:50px;
+	height:80px;
+	width:433px;
+}

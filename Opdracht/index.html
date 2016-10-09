@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>PoolTable Simulation</title>
-
+<link rel="stylesheet" type="text/css" href="css/style.css">
 </head>
 
 <body>
@@ -12,12 +12,34 @@
 <script src="js/OrbitControls.js"></script>
 <script src="js/Detector.js"></script>
 <script src="js/PhysicsTest.js"></script>
+<div class="scoreboard">
+	<h2>Scoreboard (statistieken)</h2>
+	<div class="inner">
+    	<div class="scores">
+        Aantal keren geschoten:<br>
+        <p id="shotsfired">0</p>
+        Aantal geraakte ballen met de witte bal:<br>
+        <p id="ballshit"> 883838848484848848383</p>
+        
+        Aantal connecties tussen ballen:<br>
+         <p id="connect"> 883838848484848848383</p>
+         
+          Extra informatie (debug):<br>
+         <p id="debug"></p>
+        </div>
+    </div>
+</div>
+<div class="main">
+<div class="logo"></div>
+<canvas id="poolgame">
+</canvas>
+</div>
 
 <script>
     if (!Detector.webgl) Detector.addGetWebGLMessage();
 
     var camera, controls, scene, renderer, whiteball, rotationVector, physics, raycaster, clock, poolGroup, cue, speedVariable, ballGroup, ball1Direction;
-
+	var hitsonball = 0;
     var collisionItems = [];
     var physicsItems = [];
     var physicsItemsScript = [];
@@ -37,10 +59,10 @@
         
         calcPhysics(frameDeltaTime);
 
-        requestAnimationFrame(render);
+        
 
         renderer.render(scene, camera);
-
+		requestAnimationFrame(render);
 
     }
 
@@ -148,7 +170,11 @@
                     whiteballPhysics.updateDirection(cameraVector.x, cameraVector.y, cameraVector.z);
                     cue.position.z = 100;
                     controls.target = poolGroup.position;
-                    break;
+					hitsonball += 1;
+					document.getElementById("shotsfired").innerHTML = hitsonball;
+					document.getElementById("ballshit").innerHTML = cue.position.z + hitsonball;
+					document.getElementById("connect").innerHTML = cue.position.x + hitsonball;
+					break;
             }
         }
     }
@@ -164,13 +190,14 @@
 
         scene = new THREE.Scene();
         camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-
-        renderer = new THREE.WebGLRenderer();
+		//var canvas = document.getElementById('Canvas');
+        renderer = new THREE.WebGLRenderer({canvas: poolgame});
         renderer.setSize(1200, 800);
         renderer.setClearColor(0x000000);
         renderer.shadowMap.enabled = true;
         renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-        document.body.appendChild(renderer.domElement);
+		
+        //document.getElementById(Canvas).appendChild(renderer.domElement);
 
         //BackgroundColor
         var backgroundMaterial = new THREE.MeshBasicMaterial({ color: 0x21aadf });
@@ -538,5 +565,6 @@
     return speedVariable;
     }*/
 	</script>
+    
 </body>
 </html>
