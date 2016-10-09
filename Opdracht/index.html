@@ -185,6 +185,17 @@
         mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
         mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
     }
+	
+	 // After loading JSON from our file, we add it to the scene
+    function addModelToScene(geometry, materials) {
+        var material = new THREE.MeshFaceMaterial(materials);
+        model = new THREE.Mesh(geometry, material);
+        model.scale.set(30, 30, 30);
+        model.position.set(0, 6, 0);
+		model.rotation.y = Math.PI / 2;
+		model.receiveShadow = true;
+        scene.add(model);
+    }
 
     function init() {
 
@@ -204,13 +215,17 @@
         var backgroundMaterial = new THREE.MeshPhongMaterial({ color: 0x21aadf });
         //BackgroundSize
         var background = new THREE.Mesh(new THREE.PlaneBufferGeometry(window.innerWidth, window.innerHeight, 2, 2), backgroundMaterial);
-        background.position.y = -30;
+        background.position.y = -24;
         background.rotation.x = -Math.PI / 2;
         background.receiveShadow = true;
         scene.add(background);
 
         poolGroup = new THREE.Group();
         scene.add(poolGroup);
+		
+        // Load the JSON files and provide callback functions (modelToScene
+        var modelloader = new THREE.JSONLoader();
+        modelloader.load("models/pooltable.json", addModelToScene);
 
         //pooltable color
         var poolMaterial = new THREE.MeshPhongMaterial({ color: 0x07A127 });
