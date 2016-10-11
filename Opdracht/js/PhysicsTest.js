@@ -17,7 +17,7 @@
         this.speed = 0;
         this.dirXYZ = ObjectDirection; //Vector3
         this.clockDelta = 0;
-        this.lastHitBy = null;
+        this.lastHitBy = [];
 
     }
 
@@ -68,15 +68,14 @@
     PhysicsObject.prototype.updateHitBy = function (CollisionItem) {
         if (CollisionItem == null)
             this.lastHitBy = [];
-        else
-        {
-            for (i = 0; i < this.lastHitBy.length; i++){
-                if (this.lastHitBy[i] == CollisionItem)
+        else {
+            for (i = 0; i < this.lastHitBy.length; i++) {
+                if (this.lastHitBy[i].threeObjectName == CollisionItem)
                     return;
             }
             this.lastHitBy.push(CollisionItem);
 
-            //console.log("new hit: " + this.threeObjectName + " by: "+ this.lastHitBy);
+            //console.log("new hit: " + this.threeObjectName + " by: " + this.lastHitBy[0].threeObjectName);
         }
 
     }
@@ -95,17 +94,19 @@
 
     }
 
-
-    PhysicsObject.prototype.returnData = function () {
-        return [this.posX, this.posY, this.posZ, this.speed, this.dirXYZ];
-    }
-
-    PhysicsObject.prototype.returnThreeObject = function () {
-        return this.threeObject;
-    }
-
     PhysicsObject.prototype.calculateNewPos = function () {
         //Not including Y because it's not needed
+        if (this.lastHitBy.length > 0) {
+            var hitByList = this.lastHitBy;
+            if (hitByList.length == 1) {
+                console.log(hitByList);
+            }
+            else {
+                for (i = 0; i < hitByList.length; i++) {
+                }
+            }
+        }
+
         var translateX = (this.speed * this.clockDelta) * this.dirXYZ.x;
         var translateY = (this.speed * this.clockDelta) * this.dirXYZ.y;
         var translateZ = (this.speed * this.clockDelta) * this.dirXYZ.z;
@@ -119,6 +120,13 @@
         return this.returnData();
     }
 
+    PhysicsObject.prototype.returnData = function () {
+        return [this.posX, this.posY, this.posZ, this.speed, this.dirXYZ];
+    }
+
+    PhysicsObject.prototype.returnThreeObject = function () {
+        return this.threeObject;
+    }
     /*
     PhysicsObject.prototype.updateSpeed = function () {
         if (speedVariable >= 0.2) {
