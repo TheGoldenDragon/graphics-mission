@@ -1,14 +1,14 @@
-var threeObject;
-var threeObjectName
-var posX;
-var posY;
-var posZ;
-var speed;
-var dirXYZ;
-var clockDelta;
-var lastHitBy;
+    var threeObject;
+    var threeObjectName
+    var posX;
+    var posY;
+    var posZ;
+    var speed;
+    var dirXYZ;
+    var clockDelta;
+    var lastHitBy;
 
-function PhysicsObject(ThreeObject, ObjectDirection) {
+    function PhysicsObject(ThreeObject, ObjectDirection) {
         this.threeObject = ThreeObject;
         this.threeObjectName = ThreeObject.name;
         this.posX = 0;
@@ -97,7 +97,7 @@ function PhysicsObject(ThreeObject, ObjectDirection) {
 
 
     PhysicsObject.prototype.returnData = function () {
-        return [this.posX, this.posY, this.posZ, this.speed];
+        return [this.posX, this.posY, this.posZ, this.speed, this.dirXYZ];
     }
 
     PhysicsObject.prototype.returnThreeObject = function () {
@@ -113,6 +113,8 @@ function PhysicsObject(ThreeObject, ObjectDirection) {
         this.posX += translateX;
         this.posY += translateY;
         this.posZ += translateZ;
+
+        this.updateHitBy(null);
 
         return this.returnData();
     }
