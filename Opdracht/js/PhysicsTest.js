@@ -70,8 +70,10 @@
             this.lastHitBy = [];
         else {
             for (i = 0; i < this.lastHitBy.length; i++) {
-                if (this.lastHitBy[i].threeObjectName == CollisionItem)
-                    return;
+                if (this.lastHitBy[i].threeObjectName == CollisionItem.threeObjectName) {
+                    return; 
+                    
+                }
             }
             this.lastHitBy.push(CollisionItem);
 
@@ -99,7 +101,7 @@
         if (this.lastHitBy.length > 0) {
             var hitByList = this.lastHitBy;
             if (hitByList.length == 1) {
-                console.log(hitByList);
+                //console.log(this.threeObjectName + " " + hitByList[0].threeObjectName + " " + hitByList[0].posZ);
             }
             else {
                 for (i = 0; i < hitByList.length; i++) {
