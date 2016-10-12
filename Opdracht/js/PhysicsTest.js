@@ -7,6 +7,7 @@
     var dirXYZ;
     var clockDelta;
     var lastHitBy;
+    var tempPosX, tempPosY, tempPosZ, tempSpeed, tempDirXYZ;
 
     function PhysicsObject(ThreeObject, ObjectDirection) {
         this.threeObject = ThreeObject;
@@ -71,13 +72,18 @@
         else {
             for (i = 0; i < this.lastHitBy.length; i++) {
                 if (this.lastHitBy[i].threeObjectName == CollisionItem.threeObjectName) {
-                    return; 
-                    
+                    return;
                 }
             }
-            this.lastHitBy.push(CollisionItem);
 
-            //console.log("new hit: " + this.threeObjectName + " by: " + this.lastHitBy[0].threeObjectName);
+            var extThreeObjectName = CollisionItem.threeObjectName;
+            var extSpeed = CollisionItem.speed;
+            var extPosX = CollisionItem.posX, extPosY = CollisionItem.posY, extPosZ = CollisionItem.posZ;
+            var extDirXYZ = CollisionItem.dirXYZ;
+            var extData = [extThreeObjectName, extSpeed, extPosX, extPosY, extPosZ, extDirXYZ];
+
+            CollisionItem.lastHitBy = [];
+            this.lastHitBy.push(extData);
         }
 
     }
@@ -85,15 +91,13 @@
     PhysicsObject.prototype.checkIgnore = function (CollisionItem) {
         if (CollisionItem == null)
             return false;
-        else
-        {
+        else {
             for (i = 0; i < this.lastHitBy.length; i++){
                 if (this.lastHitBy[i] == CollisionItem)
                     return true;
             }
             return false;
         }
-
     }
 
     PhysicsObject.prototype.calculateNewPos = function () {
@@ -101,11 +105,16 @@
         if (this.lastHitBy.length > 0) {
             var hitByList = this.lastHitBy;
             if (hitByList.length == 1) {
-                //console.log(this.threeObjectName + " " + hitByList[0].threeObjectName + " " + hitByList[0].posZ);
+                console.log(hitByList[0]);
+                console.log(this.threeObjectName + " " + hitByList[0][0] + " " + hitByList[0][2]);
+                var hitBySpeed = hitByList[0][1];
+                this.speed = hitBySpeed;
             }
             else {
                 for (i = 0; i < hitByList.length; i++) {
+
                 }
+                console.log(hitByList.length);
             }
         }
 

@@ -1,40 +1,151 @@
-var threeObject, positionX, positionZ, directionX, directionZ, speed;
+var threeObject;
+var threeObjectName
+var posX;
+var posY;
+var posZ;
+var speed;
+var dirXYZ;
+var clockDelta;
+var lastHitBy;
 
-function PhysicsObject(ThreeObject, PositionX, PositionZ, Speed, DirectionX, DirectionZ) {
-        this.threeObject = ThreeObject;
-        this.positionX = PositionX;
-        this.positionZ = PositionZ;
-        this.directionX = 0;
-        this.directionZ = 0;
-        this.speed = 0;
-        console.log("X: " + this.positionX + "\nY: " + this.positionZ + "\nSpeed: " + this.speed + "\ndirX: " + this.directionX + "\ndirZ: " + this.directionZ);
+function PhysicsObject(ThreeObject, ObjectDirection) {
+    this.threeObject = ThreeObject;
+    this.threeObjectName = ThreeObject.name;
+    this.posX = 0;
+    this.posY = 0;
+    this.posZ = 0;
+    this.speed = 0;
+    this.dirXYZ = ObjectDirection; //Vector3
+    this.clockDelta = 0;
+    this.lastHitBy = [];
 
-    }
+}
 
-    PhysicsObject.prototype.updateCoords = function (PositionX, PositionZ) {
-        positionX = PositionX;
-        positionZ = PositionZ;
-        console.log("X: " + this.positionX + "\nY: " + this.positionZ);
-    }
+PhysicsObject.prototype.updateData = function (PositionXYZ, ClockDelta) {
+    this.posX = PositionXYZ.x;
+    this.posY = PositionXYZ.y;
+    this.posZ = PositionXYZ.z;
+    this.updateSpeed(null); //null - causes ball to slow down
+    //this.dirX = DirectionXYZ.x;
+    //this.dirY = DirectionXYZ.y;
+    //this.dirZ = DirectionXYZ.z;
+    this.clockDelta = ClockDelta;
 
-    PhysicsObject.prototype.updateBallData = function (PositionX, PositionZ, Speed, DirectionX, DirectionZ) {
-        
-        console.log("X: " + this.positionX + "\nY: " + this.positionZ + "\nSpeed: " + this.speed + "\ndirX: " + this.directionX + "\ndirZ: " + this.directionZ);this.positionX = PositionX;
-        this.positionZ = PositionZ;
+    //debugging
+    //console.log("Ball info:\n- posX: " + this.posX + "\n- posY: " + this.posY + "\n- posZ: " + this.posZ + "\n- Delta: " + this.clockDelta + "\n- Speed: " + this.speed);
+}
+
+PhysicsObject.prototype.updateSpeed = function (Speed) {
+    if (Speed != null) {
         this.speed = Speed;
-        this.directionX = DirectionX;
-        this.directionZ = DirectionZ;
-        
-        console.log("X: " + this.positionX + "\nY: " + this.positionZ + "\nSpeed: " + this.speed + "\ndirX: " + this.directionX + "\ndirZ: " + this.directionZ);
+    }
+    else {
+        var currentSpeed = this.speed;
+
+        if (currentSpeed >= 0.2) {
+            currentSpeed -= 3 * this.clockDelta;
+        }
+
+        if (currentSpeed > 0 && currentSpeed < 0.2) {
+            currentSpeed -= 3 * this.clockDelta;
+        }
+
+        if (currentSpeed <= 0) {
+            currentSpeed = 0;
+        }
+        this.speed = currentSpeed;
     }
 
 
+}
 
-    PhysicsObject.prototype.calculateNewPos = function () {
+PhysicsObject.prototype.updateDirection = function (DirX, DirY, DirZ) {
+    this.dirXYZ.x = DirX;
+    this.dirXYZ.y = DirY;
+    this.dirXYZ.z = DirZ;
+}
 
-        var newX = 0;
-        var newZ = 0;
-        newX = this.directionX >= 0 ? newX + (speed * directionX) : newX - (speed * directionX);
-        newZ = this.directionZ >= 0 ? newZ + (speed * directionZ) : newZ - (speed * directionZ);
-        return [newX, newZ];
+PhysicsObject.prototype.updateHitBy = function (CollisionItem) {
+    if (CollisionItem == null)
+        this.lastHitBy = [];
+    else {
+        for (i = 0; i < this.lastHitBy.length; i++) {
+            if (this.lastHitBy[i].threeObjectName == CollisionItem.threeObjectName) {
+                return;
+            }
+        }
+        this.lastHitBy.push(CollisionItem);
+
+        if (this.lastHitBy[this.lastHitBy.length - 1].lastHitBy.length > 0)
+            this.lastHitBy[this.lastHitBy.length - 1].lastHitBy = null;
+
+
+        //console.log("new hit: " + this.threeObjectName + " by: " + this.lastHitBy[0].threeObjectName);
     }
+
+}
+
+PhysicsObject.prototype.checkIgnore = function (CollisionItem) {
+    if (CollisionItem == null)
+        return false;
+    else {
+        for (i = 0; i < this.lastHitBy.length; i++){
+            if (this.lastHitBy[i] == CollisionItem)
+                return true;
+        }
+        return false;
+    }
+}
+
+PhysicsObject.prototype.calculateNewPos = function () {
+    //Not including Y because it's not needed
+    if (this.lastHitBy.length > 0) {
+        var hitByList = this.lastHitBy;
+        if (hitByList.length == 1) {
+            //console.log(this.threeObjectName + " " + hitByList[0].threeObjectName + " " + hitByList[0].posZ);
+        }
+        else {
+            for (i = 0; i < hitByList.length; i++) {
+            }
+        }
+    }
+
+    var translateX = (this.speed * this.clockDelta) * this.dirXYZ.x;
+    var translateY = (this.speed * this.clockDelta) * this.dirXYZ.y;
+    var translateZ = (this.speed * this.clockDelta) * this.dirXYZ.z;
+
+    this.posX += translateX;
+    this.posY += translateY;
+    this.posZ += translateZ;
+
+    this.updateHitBy(null);
+
+    return this.returnData();
+}
+
+PhysicsObject.prototype.returnData = function () {
+    return [this.posX, this.posY, this.posZ, this.speed, this.dirXYZ];
+}
+
+PhysicsObject.prototype.returnThreeObject = function () {
+    return this.threeObject;
+}
+/*
+ PhysicsObject.prototype.updateSpeed = function () {
+ if (speedVariable >= 0.2) {
+ speedVariable -= 0.1;
+ }
+ else if (speedVariable > 0 && speedVariable < 0.2) {
+ speedVariable -= 0.1;
+ controls.target = whiteball.position;
+ camera.position.y = whiteball.position.y + 40;
+ camera.position.x = whiteball.position.x + 30;
+ camera.position.z = whiteball.position.z + 30;
+ }
+ else if (speedVariable <= 0) {
+ cue.position.z = 0.1;
+
+ controls.target = whiteball.position;
+ }
+ return speedVariable;
+ }*/

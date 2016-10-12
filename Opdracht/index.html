@@ -168,8 +168,8 @@
             var senderSpeed = physicsItemsScript[sender].speed;
             var senderDirection = physicsItemsScript[sender].dirXYZ;
 
-            //if (physicsItemsScript[sender].speed <= 0)
-            //   continue; //If the object is NOT moving skip the object
+            if (physicsItemsScript[sender].speed <= 0)
+               continue; //If the object is NOT moving skip the object
 
             //console.log("--------- new item " + physicsItemsScript[sender].threeObjectName);
 
@@ -193,9 +193,9 @@
                     //Search for physicsItem related script
                     for (receiver = 0; receiver < physicsItemsScript.length; receiver++) {
                         if (physicsItemsScript[receiver].threeObjectName == collisionResult[0].object.name) {
-                            //var tempIgnore = physicsItemsScript[receiver].checkIgnore(physicsItemsScript[sender].threeObjectName);
-                            //if (tempIgnore == true)
-                            //    continue;
+                            var tempIgnore = physicsItemsScript[receiver].checkIgnore(physicsItemsScript[sender].threeObjectName);
+                            if (tempIgnore == true)
+                                continue;
 
                             //Send relevant data for physics calculations
                             physicsItemsScript[receiver].updateHitBy(physicsItemsScript[sender]);
@@ -210,12 +210,8 @@
                 collisionResult = ray.intersectObjects(collisionItems);
                 if (collisionResult.length > 0 && collisionResult[0].distance < 1) {
                     //console.log("Ja, " + physicsItems[sender].name + " met: " + collisionResult[0].object.name);
-                    senderSpeed = 0;
                 }
-
             }
-
-            physicsItemsScript[sender].updateSpeed(senderSpeed);
         }
 
         for (i = 0; i < physicsItemsScript.length; i++) {
@@ -562,6 +558,8 @@
 
         for (i = 0; i < ballGroup.children.length; i++) {
             ballGroup.children[i].name = "ball" + (i + 1);
+            ballGroup.children[i].castShadow = true;
+            ballGroup.children[i].receiveShadow = true;
             PhysicsObject["ball" + i + "Physics"] = new PhysicsObject(ballGroup.children[i], tempDirection);
             physicsItems.push(ballGroup.children[i]);
             physicsItemsScript.push(PhysicsObject["ball" + i + "Physics"]);
