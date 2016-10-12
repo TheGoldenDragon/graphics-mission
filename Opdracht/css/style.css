@@ -56,3 +56,17 @@ h2 {
 	height:80px;
 	width:433px;
 }
+.menu{position:fixed; padding-left:50px;}
+.button{
+	text-align:center;
+	float:left;
+	margin-left:8px;
+	width:120px;
+	height:50px;
+	padding-top:20px;
+	padding-bottom:10px;
+	background-color:#090;
+	color:#fff;	
+	border: 2px dashed;
+    border-radius: 25px;
+}
