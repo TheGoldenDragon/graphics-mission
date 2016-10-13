@@ -12,11 +12,6 @@
 <script src="js/OrbitControls.js"></script>
 <script src="js/Detector.js"></script>
 <script src="js/PhysicsTest.js"></script>
-<div class="menu">
-<a href="versie1/index.html"><div class="button" >Versie 1 <br>(Physics)</div></a>
-<a href="versie2/index.html"><div class="button">Versie 2 <br>(Raycaster)</div></a>
-<a href="index.html"><div class="button" style="background-color:#030;">Versie 3 <br>(Werkende versie)</div></a>
-</div>
 <div class="scoreboard" style="display: none;">
 	<h2>Scoreboard (statistieken)</h2>
 	<div class="inner">
@@ -168,13 +163,14 @@
 
         }*/
 
+
         //ballPhysics
         for (sender = 0; sender < physicsItems.length; sender++) {
             var senderSpeed = physicsItemsScript[sender].speed;
             var senderDirection = physicsItemsScript[sender].dirXYZ;
 
-            if (physicsItemsScript[sender].speed <= 0)
-               continue; //If the object is NOT moving skip the object
+            //if (physicsItemsScript[sender].speed <= 0)
+            //    continue; //If the object is NOT moving skip the object
 
             //console.log("--------- new item " + physicsItemsScript[sender].threeObjectName);
 
@@ -192,7 +188,7 @@
                 var ray = new THREE.Raycaster(originPoint, directionVector.clone().normalize());
                 var collisionResult = ray.intersectObjects(physicsItems);
 
-                if (collisionResult.length > 0 && collisionResult[0].distance < 1) {
+                if (collisionResult.length > 0 && collisionResult[0].distance < 0.2 + senderSpeed * tempDeltaData) {
                     //console.log("Ja, " + physicsItems[sender].name + " met: " + collisionResult[0].object.name);
 
                     //Search for physicsItem related script
@@ -224,7 +220,6 @@
 
             if (physicsItemsScript[i].lastHitBy.length <= 0 && physicsItemsScript[i].speed <= 0)
                 continue;
-            //console.log("updating: " + physicsItemsScript[i].threeObjectName);
 
             var tempXYZ = physicsItemsScript[i].calculateNewPos();
             physicsItems[i].position.x = tempXYZ[0];
@@ -478,20 +473,20 @@
         var ball2 = new THREE.Mesh(BallGeometry, ball2Material);
         ball2.position.set(-1.1, 1.5, -20);
         ball2.rotation.y = -1.5;
-        ballGroup.add(ball2);
+        //ballGroup.add(ball2);
 
         var ball3Material = new THREE.MeshPhongMaterial({ map: textureball3 });
         var ball3 = new THREE.Mesh(BallGeometry, ball3Material);
         ball3.position.set(1.1, 1.5, -20);
         ball3.rotation.y = -1.5;
-        ballGroup.add(ball3);
+        //ballGroup.add(ball3);
 
         //Third row
         var ball4Material = new THREE.MeshPhongMaterial({ map: textureball4 });
         var ball4 = new THREE.Mesh(BallGeometry, ball4Material);
         ball4.position.set(-2.1, 1.5, -22);
         ball4.rotation.y = -1.5;
-        ballGroup.add(ball4);
+        //ballGroup.add(ball4);
 
         var ball5Material = new THREE.MeshPhongMaterial({ map: textureball5 });
         var ball5 = new THREE.Mesh(BallGeometry, ball5Material);
@@ -503,14 +498,14 @@
         var ball6 = new THREE.Mesh(BallGeometry, ball6Material);
         ball6.position.set(2.1, 1.5, -22);
         ball6.rotation.y = -1.5;
-        ballGroup.add(ball6);
+        //ballGroup.add(ball6);
 
         //Fourth row
         var ball7Material = new THREE.MeshPhongMaterial({ map: textureball7 });
         var ball7 = new THREE.Mesh(BallGeometry, ball7Material);
         ball7.position.set(3.2, 1.5, -24);
         ball7.rotation.y = -1.5;
-        ballGroup.add(ball7);
+        //ballGroup.add(ball7);
 
         var ball8Material = new THREE.MeshPhongMaterial({ map: textureball8 });
         var ball8 = new THREE.Mesh(BallGeometry, ball8Material);
@@ -528,38 +523,38 @@
         var ball10 = new THREE.Mesh(BallGeometry, ball10Material);
         ball10.position.set(-3.2, 1.5, -24);
         ball10.rotation.y = -1.5;
-        ballGroup.add(ball10);
+        //ballGroup.add(ball10);
 
         //Fifth row
         var ball11Material = new THREE.MeshPhongMaterial({ map: textureball11 });
         var ball11 = new THREE.Mesh(BallGeometry, ball11Material);
         ball11.position.set(-4.3, 1.5, -26);
         ball11.rotation.y = -1.5;
-        ballGroup.add(ball11);
+        //ballGroup.add(ball11);
 
         var ball12Material = new THREE.MeshPhongMaterial({ map: textureball12 });
         var ball12 = new THREE.Mesh(BallGeometry, ball12Material);
         ball12.position.set(-2.1, 1.5, -26);
         ball12.rotation.y = -1.5;
-        ballGroup.add(ball12);
+        //ballGroup.add(ball12);
 
         var ball13Material = new THREE.MeshPhongMaterial({ map: textureball13 });
         var ball13 = new THREE.Mesh(BallGeometry, ball13Material);
         ball13.position.set(0, 1.5, -26);
         ball13.rotation.y = -1.5;
-        ballGroup.add(ball13);
+        //ballGroup.add(ball13);
 
         var ball14Material = new THREE.MeshPhongMaterial({ map: textureball14 });
         var ball14 = new THREE.Mesh(BallGeometry, ball14Material);
         ball14.position.set(2.1, 1.5, -26);
         ball14.rotation.y = -1.5;
-        ballGroup.add(ball14);
+        //ballGroup.add(ball14);
 
         var ball15Material = new THREE.MeshPhongMaterial({ map: textureball15 });
         var ball15 = new THREE.Mesh(BallGeometry, ball15Material);
         ball15.position.set(4.3, 1.5, -26);
         ball15.rotation.y = -1.5;
-        ballGroup.add(ball15);
+        //ballGroup.add(ball15);
 
         for (i = 0; i < ballGroup.children.length; i++) {
             ballGroup.children[i].name = "ball" + (i + 1);

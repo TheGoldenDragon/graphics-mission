@@ -31,7 +31,7 @@
         //this.dirY = DirectionXYZ.y;
         //this.dirZ = DirectionXYZ.z;
         this.clockDelta = ClockDelta;
-
+        
         //debugging
         //console.log("Ball info:\n- posX: " + this.posX + "\n- posY: " + this.posY + "\n- posZ: " + this.posZ + "\n- Delta: " + this.clockDelta + "\n- Speed: " + this.speed);
     }
@@ -42,6 +42,9 @@
         }
         else {
             var currentSpeed = this.speed;
+
+            if (currentSpeed > 30 /*max speed*/)
+                currentSpeed = 30;
 
             if (currentSpeed >= 0.2) {
                 currentSpeed -= 3 * this.clockDelta;
@@ -67,11 +70,12 @@
     }
 
     PhysicsObject.prototype.updateHitBy = function (CollisionItem) {
-        if (CollisionItem == null)
+        if (CollisionItem == null) {
             this.lastHitBy = [];
+        }
         else {
             for (i = 0; i < this.lastHitBy.length; i++) {
-                if (this.lastHitBy[i].threeObjectName == CollisionItem.threeObjectName) {
+                if (this.lastHitBy[i][0] == CollisionItem.threeObjectName) {
                     return;
                 }
             }
@@ -82,7 +86,6 @@
             var extDirXYZ = CollisionItem.dirXYZ;
             var extData = [extThreeObjectName, extSpeed, extPosX, extPosY, extPosZ, extDirXYZ];
 
-            CollisionItem.lastHitBy = [];
             this.lastHitBy.push(extData);
         }
 
@@ -101,20 +104,23 @@
     }
 
     PhysicsObject.prototype.calculateNewPos = function () {
-        //Not including Y because it's not needed
+        //hitByList contains: [0]:name | [1]:speed | [2]:posX | [3]:posY | [4]:posZ | [5]:DirXYZ(.x.y.z) | [6]: |
         if (this.lastHitBy.length > 0) {
             var hitByList = this.lastHitBy;
             if (hitByList.length == 1) {
-                console.log(hitByList[0]);
-                console.log(this.threeObjectName + " " + hitByList[0][0] + " " + hitByList[0][2]);
-                var hitBySpeed = hitByList[0][1];
-                this.speed = hitBySpeed;
+
+                this.speed = hitByList[0][1];
             }
             else {
-                for (i = 0; i < hitByList.length; i++) {
+                var currentSpeed = this.speed;
 
+                for (i = 0; i < hitByList.length; i++) {
+                    currentSpeed += hitByList[i][1];
                 }
-                console.log(hitByList.length);
+                currentSpeed /= hitByList.length
+
+                this.speed = currentSpeed;
+                console.log(currentSpeed + " " + hitByList.length);
             }
         }
 
