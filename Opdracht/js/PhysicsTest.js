@@ -73,13 +73,28 @@
         if (CollisionItem == null) {
             this.lastHitBy = [];
         }
+        else if (CollisionItem.name == "pooltableBorderNorth" || CollisionItem.name == "pooltableBorderSouth" || CollisionItem.name == "pooltableBorderWest" || CollisionItem.name == "pooltableBorderEast") {
+            switch (CollisionItem.name) {
+                case "pooltableBorderNorth":
+                    this.dirXYZ.z = -(this.dirXYZ.z);
+                    break;
+                case "pooltableBorderSouth":
+                    this.dirXYZ.z = -(this.dirXYZ.z);
+                    break;
+                case "pooltableBorderWest":
+                    this.dirXYZ.x = -(this.dirXYZ.x);
+                    break;
+                case "pooltableBorderEast":
+                    this.dirXYZ.x = -(this.dirXYZ.x);
+                    break;
+            }
+        }
         else {
             for (i = 0; i < this.lastHitBy.length; i++) {
                 if (this.lastHitBy[i][0] == CollisionItem.threeObjectName) {
                     return;
                 }
             }
-
             var extThreeObjectName = CollisionItem.threeObjectName;
             var extSpeed = CollisionItem.speed;
             var extPosX = CollisionItem.posX, extPosY = CollisionItem.posY, extPosZ = CollisionItem.posZ;
@@ -95,9 +110,10 @@
         if (CollisionItem == null)
             return false;
         else {
-            for (i = 0; i < this.lastHitBy.length; i++){
-                if (this.lastHitBy[i] == CollisionItem)
+            for (i = 0; i < this.lastHitBy.length; i++) {
+                if (this.lastHitBy[i] == CollisionItem) {
                     return true;
+                }
             }
             return false;
         }
@@ -108,7 +124,13 @@
         if (this.lastHitBy.length > 0) {
             var hitByList = this.lastHitBy;
             if (hitByList.length == 1) {
+                //console.log("New");
+                //console.log(this.threeObjectName + " info:\n- posX: " + this.posX + "\n- posY: " + this.posY + "\n- posZ: " + this.posZ + "\n- Delta: " + this.clockDelta + "\n- Speed: " + this.speed + "\n- DirXYZ: " + this.dirXYZ.x * 57.2957795  + " " + this.dirXYZ.y * 57.2957795  + " " + this.dirXYZ.z * 57.2957795 );
+                //console.log(hitByList[0][0] + " info:\n- posX: " + hitByList[0][2] + "\n- posY: " + hitByList[0][3] + "\n- posZ: " + hitByList[0][4] + "\n- Delta: " + this.clockDelta + "\n- Speed: " + hitByList[0][1] + "\n- DirXYZ: " + hitByList[0][5].x * 57.2957795  + " " + hitByList[0][5].y * 57.2957795  + " " + hitByList[0][5].z * 57.2957795);
 
+                if (this.speed <= 0) {
+
+                }
                 this.speed = hitByList[0][1];
             }
             else {
@@ -117,16 +139,18 @@
                 for (i = 0; i < hitByList.length; i++) {
                     currentSpeed += hitByList[i][1];
                 }
-                currentSpeed /= hitByList.length
+                if (currentSpeed > 30)
+                    currentSpeed = 30;
 
                 this.speed = currentSpeed;
-                console.log(currentSpeed + " " + hitByList.length);
             }
         }
 
         var translateX = (this.speed * this.clockDelta) * this.dirXYZ.x;
         var translateY = (this.speed * this.clockDelta) * this.dirXYZ.y;
         var translateZ = (this.speed * this.clockDelta) * this.dirXYZ.z;
+        //if (this.posX + translateX > 18.1 || this.posX + translateX < -20.1 || this.posZ + translateZ > 38.1 || this.posZ + translateZ < -38.1)
+        //    return [this.posX, this.posY, this.posZ, this.speed, this.dirXYZ];
 
         this.posX += translateX;
         this.posY += translateY;

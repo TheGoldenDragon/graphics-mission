@@ -177,8 +177,8 @@
             var originPoint = physicsItems[sender].position.clone();
             for (var vertexIndex = 0; vertexIndex < physicsItems[sender].geometry.vertices.length; vertexIndex++) {
                 //Performance increase
-                if (vertexIndex % 2 != 0)
-                    continue;
+                //if (vertexIndex % 2 != 0)
+                //    continue;
 
                 var localVertex = physicsItems[sender].geometry.vertices[vertexIndex].clone();
                 var globalVertex = localVertex.applyMatrix4(physicsItems[sender].matrix);
@@ -211,6 +211,18 @@
                 collisionResult = ray.intersectObjects(collisionItems);
                 if (collisionResult.length > 0 && collisionResult[0].distance < 1) {
                     //console.log("Ja, " + physicsItems[sender].name + " met: " + collisionResult[0].object.name);
+                    for (border = 0; border < collisionItems.length; border++) {
+                        if (collisionResult[0].object.name == collisionItems[border].name) {
+                            var tempIgnore = physicsItemsScript[sender].checkIgnore(collisionItems[border].name);
+                            if (tempIgnore == true)
+                                continue;
+
+                            physicsItemsScript[sender].updateHitBy(collisionItems[border]);
+                            break;
+                        }
+                    }
+
+                    
                 }
             }
         }
@@ -391,6 +403,7 @@
         b4.position.x = -20;
         b4.position.y = 0.5;
         b4.position.z = 0;
+        b4.rotation.z = Math.PI / 2;
         b4.castShadow = true;
         b4.receiveShadow = true;
         poolGroup.add(b4);
@@ -677,13 +690,13 @@
         controls.target = whiteball.position;
 
         //CollisionItems
-        b1.name = "pooltableBorder";
+        b1.name = "pooltableBorderSouth";
         collisionItems.push(b1);
-        b2.name = "pooltableBorder";
+        b2.name = "pooltableBorderNorth";
         collisionItems.push(b2);
-        b3.name = "pooltableBorder";
+        b3.name = "pooltableBorderEast";
         collisionItems.push(b3);
-        b4.name = "pooltableBorder";
+        b4.name = "pooltableBorderWest";
         collisionItems.push(b4);
         pooltable.name = "pooltable";
         //collisionItems.push(pooltable);
