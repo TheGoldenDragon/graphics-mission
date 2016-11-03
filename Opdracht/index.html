@@ -38,12 +38,15 @@
 <script>
     if (!Detector.webgl) Detector.addGetWebGLMessage();
 
-    var camera, controls, scene, renderer, whiteball, rotationVector, physics, raycaster, clock, poolGroup, cue, speedVariable, ballGroup, ball1Direction;
+    var camera, controls, scene, renderer, whiteball, rotationVector, physics, raycaster, clock, poolGroup, cue, ballGroup, ball1Direction;
     var hitsonball = 0;
     var collisionItems = [];
     var physicsItems = [];
     var physicsItemsScript = [];
     var mouse = new THREE.Vector2();
+    var frameDeltaTime;
+
+    var ballSpeeds = [];
 
     document.addEventListener('mousemove', onDocumentMouseMove, true);
     document.addEventListener('keydown', onKeyDown, true);
@@ -53,254 +56,118 @@
     render();
 
     function render() {
-        var frameDeltaTime = clock.getDelta();
+        frameDeltaTime = clock.getDelta();
         controls.update();
 
         calcPhysics(frameDeltaTime);
+        cameraController();
 
         renderer.render(scene, camera);
         requestAnimationFrame(render);
     }
 
     function calcPhysics(clockDeltaTime) {
-        var tempDeltaData = clockDeltaTime;
+        //for each ball
+        for (i = 0; i < physicsItems.length; i++) {
+            //for each other ball
+            if (physicsItemsScript[i].speed <= 0)
+                continue;
 
-        /*
-        //Clear all previous hit by arrays
-        for (i = 0; i < physicsItemsScript.length; i++) {
-        physicsItemsScript[i].updateHitBy(null);
-        }
+            for (x = 0; x < physicsItems.length; x++) {
+                if (i == x)
+                    continue;
 
-        //ballPhysics
-        for (sender = 0; sender < physicsItems.length; sender++) {
-        var senderSpeed = physicsItemsScript[sender].speed;
-        var senderDirection = physicsItemsScript[sender].dirXYZ;
+                var differenceVector = GetDistanceVector(physicsItems[i].position, physicsItems[x].position);
+                var distance = Math.sqrt(differenceVector.x * differenceVector.x + differenceVector.y * differenceVector.y + differenceVector.z * differenceVector.z);
 
-        if (physicsItemsScript[sender].speed <= 0)
-        continue; //If the object is NOT moving skip the object
-        /*
-        var originPoint = physicsItems[sender].position.clone();
-        for (var vertexIndex = 0; vertexIndex < physicsItems[sender].geometry.vertices.length; vertexIndex++) {
-        if (vertexIndex % 2 != 0)
-        continue;
+                if (distance < 1 + 1) {
+                    var vectorNormal = GetVectorNormal(differenceVector, distance);
+                    var vectorVelocityDelta = GetObjectVelocityDelta(physicsItemsScript[i], physicsItemsScript[x]);
+                    var dotProduct = GetDotProduct(vectorVelocityDelta, vectorNormal);
+                    if (dotProduct > 0) {
+                        var coefficient = 0.5;
+                        var impulseStrength = (1 + coefficient) * dotProduct;
+                        var impulseVector = GetImpulseVector(impulseStrength, vectorNormal);
 
-        var localVertex = physicsItems[sender].geometry.vertices[vertexIndex].clone();
-        var globalVertex = localVertex.applyMatrix4(physicsItems[sender].matrix);
-        var directionVector = globalVertex.sub(physicsItems[sender].position);
+                        physicsItemsScript[i].updateDirection(impulseVector, false);
+                        physicsItemsScript[x].updateDirection(impulseVector, true);
 
+                        var iBallSpeed = physicsItemsScript[i].speed;
+                        var xBallSpeed = physicsItemsScript[x].speed;
 
-        var originPoint = physicsItems[sender].position.clone();
-        var subPointLeft = new THREE.Vector3(originPoint.x - 1 * senderDirection.x, 0, originPoint.z - 1 * senderDirection.z);
-        var subPointRight = new THREE.Vector3(originPoint.x + 1 * senderDirection.x, 0, originPoint.z  + 1 * senderDirection.z);
-        //console.log(subPointLeft);
-        for (var rayPoint = 0; rayPoint < 3; rayPoint++) {
-
-        if (rayPoint == 0)
-        var ray = new THREE.Raycaster(originPoint, senderDirection.clone().normalize());
-        if (rayPoint == 1)
-        var ray = new THREE.Raycaster(subPointLeft, senderDirection.clone().normalize());
-        if (rayPoint == 2)
-        var ray = new THREE.Raycaster(subPointRight, senderDirection.clone().normalize());
-
-        //Collision with physics objects
-        var collisionResult = ray.intersectObjects(physicsItems);
-
-        if (collisionResult.length > 0 && collisionResult[0].distance < 1 + senderSpeed * tempDeltaData) {
-        //console.log("Ja, " + physicsItems[sender].name + " met: " + collisionResult[0].object.name);
-        //Search for physicsItem related script
-        console.log(rayPoint);
-        for (receiver = 0; receiver < physicsItemsScript.length; receiver++) {
-        if (physicsItemsScript[receiver].threeObjectName == collisionResult[0].object.name) {
-        var tempIgnore = physicsItemsScript[receiver].checkIgnore(physicsItemsScript[sender].threeObjectName);
-        //console.log(physicsItemsScript[receiver].threeObjectName + "" + physicsItemsScript[sender].lastHitBy);
-        if (tempIgnore == true)
-        continue;
-
-        var receiverSpeed = physicsItemsScript[receiver].speed;
-        var receiverDirection = physicsItemsScript[receiver].dirXYZ ;
-
-        physicsItemsScript[receiver].updateHitBy(physicsItemsScript[sender].threeObjectName);
-        physicsItemsScript[sender].updateHitBy(physicsItemsScript[receiver].threeObjectName);
-
-        physicsItemsScript[receiver].updateSpeed(senderSpeed);
-
-        senderSpeed = receiverSpeed;
-
-        physicsItemsScript[receiver].updateDirection(senderDirection.x, senderDirection.y, senderDirection.z);
-        physicsItemsScript[sender].updateDirection(receiverDirection.x, senderDirection.y, senderDirection.z);
-
-
-        break;
-        }
-        }
-        }
-
-        //Collision with static objects
-        collisionResult = ray.intersectObjects(collisionItems);
-        if (collisionResult.length > 0 && collisionResult[0].distance < 1 + senderSpeed * tempDeltaData) {
-        //console.log("Ja, " + physicsItems[sender].name + " met: " + collisionResult[0].object.name);
-        senderSpeed = 0;
-        console.log(rayPoint);
-        }
-
-        }
-
-        physicsItemsScript[sender].updateSpeed(senderSpeed);
-        }
-
-        for (i = 0; i < physicsItemsScript.length; i++) {
-        physicsItemsScript[i].updateData(physicsItems[i].position, tempDeltaData);
-
-        if (physicsItemsScript[i].speed <= 0)
-        continue;
-
-        //console.log("updating: " + physicsItemsScript[i].threeObjectName);
-
-        var tempXZ = physicsItemsScript[i].calculateNewPos();
-        physicsItems[i].position.x = tempXZ[0];
-        physicsItems[i].position.z = tempXZ[2];
-
-
-        }*/
-
-
-        //ballPhysics
-        for (sender = 0; sender < physicsItems.length; sender++) {
-            var senderSpeed = physicsItemsScript[sender].speed;
-            var senderDirection = physicsItemsScript[sender].dirXYZ;
-
-            //if (physicsItemsScript[sender].speed <= 0)
-            //    continue; //If the object is NOT moving skip the object
-
-            //console.log("--------- new item " + physicsItemsScript[sender].threeObjectName);
-
-            var originPoint = physicsItems[sender].position.clone();
-            for (var vertexIndex = 0; vertexIndex < physicsItems[sender].geometry.vertices.length; vertexIndex++) {
-                //Performance increase
-                //if (vertexIndex % 2 != 0)
-                //    continue;
-
-                var localVertex = physicsItems[sender].geometry.vertices[vertexIndex].clone();
-                var globalVertex = localVertex.applyMatrix4(physicsItems[sender].matrix);
-                var directionVector = globalVertex.sub(physicsItems[sender].position);
-
-                //Collision with physics objects
-                var ray = new THREE.Raycaster(originPoint, directionVector.clone().normalize());
-                var collisionResult = ray.intersectObjects(physicsItems);
-
-                if (collisionResult.length > 0 && collisionResult[0].distance < 0.2 + senderSpeed * tempDeltaData) {
-                    //console.log("Ja, " + physicsItems[sender].name + " met: " + collisionResult[0].object.name);
-
-                    //Search for physicsItem related script
-                    for (receiver = 0; receiver < physicsItemsScript.length; receiver++) {
-                        if (physicsItemsScript[receiver].threeObjectName == collisionResult[0].object.name) {
-                            var tempIgnore = physicsItemsScript[receiver].checkIgnore(physicsItemsScript[sender].threeObjectName);
-                            if (tempIgnore == true)
-                                continue;
-
-                            //Send relevant data for physics calculations
-                            physicsItemsScript[receiver].updateHitBy(physicsItemsScript[sender]);
-                            physicsItemsScript[sender].updateHitBy(physicsItemsScript[receiver]);
-
-                            break;
-                        }
+                        physicsItemsScript[i].updateSpeed(xBallSpeed);
+                        physicsItemsScript[x].updateSpeed(iBallSpeed);
                     }
                 }
-
-                //Collision with static objects
-                collisionResult = ray.intersectObjects(collisionItems);
-                if (collisionResult.length > 0 && collisionResult[0].distance < 1) {
-                    //console.log("Ja, " + physicsItems[sender].name + " met: " + collisionResult[0].object.name);
-                    for (border = 0; border < collisionItems.length; border++) {
-                        if (collisionResult[0].object.name == collisionItems[border].name) {
-                            var tempIgnore = physicsItemsScript[sender].checkIgnore(collisionItems[border].name);
-                            if (tempIgnore == true)
-                                continue;
-
-                            physicsItemsScript[sender].updateHitBy(collisionItems[border]);
-                            break;
-                        }
-                    }
-
-                    
+                else {
+                    //console.log(distance);
                 }
+
             }
         }
 
-        for (i = 0; i < physicsItemsScript.length; i++) {
-            physicsItemsScript[i].updateData(physicsItems[i].position, tempDeltaData);
-
-            if (physicsItemsScript[i].lastHitBy.length <= 0 && physicsItemsScript[i].speed <= 0)
+        //Update ball positions
+        for (i = 0; i < physicsItems.length; i++) {
+            if (physicsItemsScript[i].speed <= 0) {
                 continue;
+            }
 
-            var tempXYZ = physicsItemsScript[i].calculateNewPos();
-            physicsItems[i].position.x = tempXYZ[0];
-            physicsItems[i].position.z = tempXYZ[2];
+            //console.log(physicsItemsScript[i].dirXYZ);
+            var translateX = physicsItemsScript[i].speed * clockDeltaTime * physicsItemsScript[i].dirXYZ.x;
+            var translateY = physicsItemsScript[i].speed * clockDeltaTime * physicsItemsScript[i].dirXYZ.y;
+            var translateZ = physicsItemsScript[i].speed * clockDeltaTime * physicsItemsScript[i].dirXYZ.z;
 
+            physicsItems[i].position.x += translateX;
+            physicsItems[i].position.y += 0;
+            physicsItems[i].position.z += translateZ;
+            //console.log(physicsItemsScript[i].dirXYZ)
+            //physicsItems[i].position.add(physicsItemsScript[i].dirXYZ)
 
+            physicsItemsScript[i].updateSpeed(null);
         }
 
-        /*
-        //ballPhysics
-        for (sender = 0; sender < physicsItems.length; sender++) {
-        if (physicsItemsScript[sender].speed <= 0)
-        continue; //If the object is NOT moving skip the object
+    }
 
-        var senderData = physicsItemsScript[sender].returnData();
+    function GetDistanceVector(objX, objY) {
+        var deltaX = objX.x - objY.x;
+        var deltaY = objX.y - objY.y;
+        var deltaZ = objX.z - objY.z;
 
-        // Using a little trigonometry calculate a point in
-        // space 1000 units in front of our character
-        var deltaX = Math.floor(Math.sin(senderData[4].x) * 1000);
-        var deltaZ = Math.floor(Math.cos(senderData[4].z) * 1000);
+        return new THREE.Vector3(deltaX, deltaY, deltaZ);
+    }
 
-        // Calculate where this collision focus point is in
-        // relation to our character position
-        var focusX = senderData[0] - deltaX;
-        var focusZ = senderData[2] - deltaZ;
+    function GetVectorNormal(vector, distance) {
+        var normalX = vector.x / distance;
+        var normalY = vector.y / distance;
+        var normalZ = vector.z / distance;
+        return new THREE.Vector3(normalX, normalY, normalZ);
+    }
 
-        // Fire a ray from the centre point of our character to the
-        // collision focus point
-        var ray = new THREE.Raycaster(physicsItems[sender].object.position,
-        new THREE.Vector3(focusX, 0, focusZ));
+    function GetObjectVelocityDelta(objX, objY) {
+        var deltaX = objY.dirXYZ.x * objY.speed * frameDeltaTime - objX.dirXYZ.x - objX.speed * frameDeltaTime;
+        var deltaY = objY.dirXYZ.y * objY.speed * frameDeltaTime - objX.dirXYZ.y - objX.speed * frameDeltaTime;
+        var deltaZ = objY.dirXYZ.z * objY.speed * frameDeltaTime - objX.dirXYZ.z - objX.speed * frameDeltaTime;
+        return new THREE.Vector3(deltaX, deltaY, deltaZ);
+    }
 
-        var collisionResult = ray.intersectObjects(physicsItems);
-        console.log(collisionResult);
-        for (collisionHit = 0; collisionHit < collisionResult.length; collisionHit++) {
+    function GetDotProduct(vector1, vector2) {
+        var X = vector1.x * vector2.x
+        var Y = vector1.y * vector2.y
+        var Z = vector1.z * vector2.z
+        return (X + Y + Z)
+    }
 
-        console.log("Ja, " + physicsItems[sender].name + " met: " + collisionResult[0].object.name);
-        var tempMat = new THREE.MeshPhongMaterial({ color: 0x07A127 });
-        //Borders of the pooltable
-        var tempGeo = new THREE.tempGeo(1, 3, 1);
-        hitMarker = new THREE.Mesh(tempGeo, tempMat);
-        hitMarker.position.x = collisionResult[collisionHit].position.x;
-        hitMarker.position.y = 0
-        hitMarker.position.z = collisionResult[collisionHit].position.x;
-        scene.add(hitMarker);
-        //if (collisionResult.length > 0 && collisionResult[collisionHit].distance < directionVector.length()) {
-        }
-
-        }
-
-        for (i = 0; i < physicsItemsScript.length; i++) {
-        if (physicsItemsScript[i].speed <= 0)
-        continue;
-
-        //console.log("updating: " + physicsItemsScript[i].threeObjectName);
-        physicsItemsScript[i].updateData(physicsItems[i].position, tempDeltaData);
-
-        var tempXZ = physicsItemsScript[i].calculateNewPos();
-        physicsItems[i].position.x = tempXZ[0];
-        physicsItems[i].position.z = tempXZ[2];
-
-
-        }*/
+    function GetImpulseVector(impulseStrength, vectorNormal) {
+        var x = vectorNormal.x * impulseStrength;
+        var y = vectorNormal.y * impulseStrength;
+        var z = vectorNormal.z * impulseStrength;
+        return new THREE.Vector3(x, y, z);
     }
 
     function onKeyDown(event) {
         event.preventDefault();
 
-        var x = whiteballPhysics.returnData();
-        var ballSpeed = x[3];
+        var ballSpeed = whiteballPhysics.speed;
         //var keyCode = event.which;
         if (ballSpeed <= 0) {
             switch (event.keyCode) {
@@ -309,8 +176,8 @@
                     camera.getWorldDirection(cameraVector);
 
                     //settings ball speed to 30
-                    whiteballPhysics.updateSpeed(30);
-                    whiteballPhysics.updateDirection(cameraVector.x, cameraVector.y, cameraVector.z);
+                    whiteballPhysics.speed = 30;
+                    whiteballPhysics.setDirection(cameraVector.x, cameraVector.y, cameraVector.z);
                     cue.position.z = 100;
                     controls.target = poolGroup.position;
                     hitsonball += 1;
@@ -319,6 +186,20 @@
                     document.getElementById("connect").innerHTML = cue.position.x + hitsonball;
                     break;
             }
+        }
+    }
+
+    function cameraController() {
+        if (whiteballPhysics.speed > 0 && whiteballPhysics.speed < 0.2) {
+            controls.target = whiteball.position;
+            camera.position.y = whiteball.position.y + 40;
+            camera.position.x = whiteball.position.x + 30;
+            camera.position.z = whiteball.position.z + 30;
+        }
+        else if (whiteballPhysics.speed <= 0) {
+            cue.position.z = 0.1;
+
+            controls.target = whiteball.position;
         }
     }
 
@@ -486,20 +367,20 @@
         var ball2 = new THREE.Mesh(BallGeometry, ball2Material);
         ball2.position.set(-1.1, 1.5, -20);
         ball2.rotation.y = -1.5;
-        //ballGroup.add(ball2);
+        ballGroup.add(ball2);
 
         var ball3Material = new THREE.MeshPhongMaterial({ map: textureball3 });
         var ball3 = new THREE.Mesh(BallGeometry, ball3Material);
         ball3.position.set(1.1, 1.5, -20);
         ball3.rotation.y = -1.5;
-        //ballGroup.add(ball3);
+        ballGroup.add(ball3);
 
         //Third row
         var ball4Material = new THREE.MeshPhongMaterial({ map: textureball4 });
         var ball4 = new THREE.Mesh(BallGeometry, ball4Material);
         ball4.position.set(-2.1, 1.5, -22);
         ball4.rotation.y = -1.5;
-        //ballGroup.add(ball4);
+        ballGroup.add(ball4);
 
         var ball5Material = new THREE.MeshPhongMaterial({ map: textureball5 });
         var ball5 = new THREE.Mesh(BallGeometry, ball5Material);
@@ -511,14 +392,14 @@
         var ball6 = new THREE.Mesh(BallGeometry, ball6Material);
         ball6.position.set(2.1, 1.5, -22);
         ball6.rotation.y = -1.5;
-        //ballGroup.add(ball6);
+        ballGroup.add(ball6);
 
         //Fourth row
         var ball7Material = new THREE.MeshPhongMaterial({ map: textureball7 });
         var ball7 = new THREE.Mesh(BallGeometry, ball7Material);
         ball7.position.set(3.2, 1.5, -24);
         ball7.rotation.y = -1.5;
-        //ballGroup.add(ball7);
+        ballGroup.add(ball7);
 
         var ball8Material = new THREE.MeshPhongMaterial({ map: textureball8 });
         var ball8 = new THREE.Mesh(BallGeometry, ball8Material);
@@ -536,47 +417,48 @@
         var ball10 = new THREE.Mesh(BallGeometry, ball10Material);
         ball10.position.set(-3.2, 1.5, -24);
         ball10.rotation.y = -1.5;
-        //ballGroup.add(ball10);
+        ballGroup.add(ball10);
 
         //Fifth row
         var ball11Material = new THREE.MeshPhongMaterial({ map: textureball11 });
         var ball11 = new THREE.Mesh(BallGeometry, ball11Material);
         ball11.position.set(-4.3, 1.5, -26);
         ball11.rotation.y = -1.5;
-        //ballGroup.add(ball11);
+        ballGroup.add(ball11);
 
         var ball12Material = new THREE.MeshPhongMaterial({ map: textureball12 });
         var ball12 = new THREE.Mesh(BallGeometry, ball12Material);
         ball12.position.set(-2.1, 1.5, -26);
         ball12.rotation.y = -1.5;
-        //ballGroup.add(ball12);
+        ballGroup.add(ball12);
 
         var ball13Material = new THREE.MeshPhongMaterial({ map: textureball13 });
         var ball13 = new THREE.Mesh(BallGeometry, ball13Material);
         ball13.position.set(0, 1.5, -26);
         ball13.rotation.y = -1.5;
-        //ballGroup.add(ball13);
+        ballGroup.add(ball13);
 
         var ball14Material = new THREE.MeshPhongMaterial({ map: textureball14 });
         var ball14 = new THREE.Mesh(BallGeometry, ball14Material);
         ball14.position.set(2.1, 1.5, -26);
         ball14.rotation.y = -1.5;
-        //ballGroup.add(ball14);
+        ballGroup.add(ball14);
 
         var ball15Material = new THREE.MeshPhongMaterial({ map: textureball15 });
         var ball15 = new THREE.Mesh(BallGeometry, ball15Material);
         ball15.position.set(4.3, 1.5, -26);
         ball15.rotation.y = -1.5;
-        //ballGroup.add(ball15);
+        ballGroup.add(ball15);
 
         for (i = 0; i < ballGroup.children.length; i++) {
             ballGroup.children[i].name = "ball" + (i + 1);
             ballGroup.children[i].castShadow = true;
             ballGroup.children[i].receiveShadow = true;
+            ballSpeeds[i + 1] = 0;
             PhysicsObject["ball" + i + "Physics"] = new PhysicsObject(ballGroup.children[i], tempDirection);
             physicsItems.push(ballGroup.children[i]);
             physicsItemsScript.push(PhysicsObject["ball" + i + "Physics"]);
-            //PhysicsObject["ball" + i + "Physics"].threeObject;
+            PhysicsObject["ball" + i + "Physics"].threeObject;
 
         }
         scene.add(ballGroup);
@@ -700,38 +582,242 @@
         collisionItems.push(b4);
         pooltable.name = "pooltable";
         //collisionItems.push(pooltable);
+    }
+
+
+    function calcPhysicsOld(clockDeltaTime) {
+        var tempDeltaData = clockDeltaTime;
 
         /*
-        for (i = 0; i < physicsItems.length; i++) {
-        var originPoint = physicsItems[i].position.clone();
-        for (var vertexIndex = 0; vertexIndex < physicsItems[i].geometry.vertices.length; vertexIndex++) {
-        var localVertex = physicsItems[i].geometry.vertices[vertexIndex].clone();
-        var globalVertex = localVertex.applyMatrix4(physicsItems[i].matrix);
-        var directionVector = globalVertex.sub(physicsItems[i].position);
+        //Clear all previous hit by arrays
+        for (i = 0; i < physicsItemsScript.length; i++) {
+        physicsItemsScript[i].updateHitBy(null);
         }
+
+        //ballPhysics
+        for (sender = 0; sender < physicsItems.length; sender++) {
+        var senderSpeed = physicsItemsScript[sender].speed;
+        var senderDirection = physicsItemsScript[sender].dirXYZ;
+
+        if (physicsItemsScript[sender].speed <= 0)
+        continue; //If the object is NOT moving skip the object
+        /*
+        var originPoint = physicsItems[sender].position.clone();
+        for (var vertexIndex = 0; vertexIndex < physicsItems[sender].geometry.vertices.length; vertexIndex++) {
+        if (vertexIndex % 2 != 0)
+        continue;
+
+        var localVertex = physicsItems[sender].geometry.vertices[vertexIndex].clone();
+        var globalVertex = localVertex.applyMatrix4(physicsItems[sender].matrix);
+        var directionVector = globalVertex.sub(physicsItems[sender].position);
+
+
+        var originPoint = physicsItems[sender].position.clone();
+        var subPointLeft = new THREE.Vector3(originPoint.x - 1 * senderDirection.x, 0, originPoint.z - 1 * senderDirection.z);
+        var subPointRight = new THREE.Vector3(originPoint.x + 1 * senderDirection.x, 0, originPoint.z  + 1 * senderDirection.z);
+        //console.log(subPointLeft);
+        for (var rayPoint = 0; rayPoint < 3; rayPoint++) {
+
+        if (rayPoint == 0)
+        var ray = new THREE.Raycaster(originPoint, senderDirection.clone().normalize());
+        if (rayPoint == 1)
+        var ray = new THREE.Raycaster(subPointLeft, senderDirection.clone().normalize());
+        if (rayPoint == 2)
+        var ray = new THREE.Raycaster(subPointRight, senderDirection.clone().normalize());
+
+        //Collision with physics objects
+        var collisionResult = ray.intersectObjects(physicsItems);
+
+        if (collisionResult.length > 0 && collisionResult[0].distance < 1 + senderSpeed * tempDeltaData) {
+        //console.log("Ja, " + physicsItems[sender].name + " met: " + collisionResult[0].object.name);
+        //Search for physicsItem related script
+        console.log(rayPoint);
+        for (receiver = 0; receiver < physicsItemsScript.length; receiver++) {
+        if (physicsItemsScript[receiver].threeObjectName == collisionResult[0].object.name) {
+        var tempIgnore = physicsItemsScript[receiver].checkIgnore(physicsItemsScript[sender].threeObjectName);
+        //console.log(physicsItemsScript[receiver].threeObjectName + "" + physicsItemsScript[sender].lastHitBy);
+        if (tempIgnore == true)
+        continue;
+
+        var receiverSpeed = physicsItemsScript[receiver].speed;
+        var receiverDirection = physicsItemsScript[receiver].dirXYZ ;
+
+        physicsItemsScript[receiver].updateHitBy(physicsItemsScript[sender].threeObjectName);
+        physicsItemsScript[sender].updateHitBy(physicsItemsScript[receiver].threeObjectName);
+
+        physicsItemsScript[receiver].updateSpeed(senderSpeed);
+
+        senderSpeed = receiverSpeed;
+
+        physicsItemsScript[receiver].updateDirection(senderDirection.x, senderDirection.y, senderDirection.z);
+        physicsItemsScript[sender].updateDirection(receiverDirection.x, senderDirection.y, senderDirection.z);
+
+
+        break;
+        }
+        }
+        }
+
+        //Collision with static objects
+        collisionResult = ray.intersectObjects(collisionItems);
+        if (collisionResult.length > 0 && collisionResult[0].distance < 1 + senderSpeed * tempDeltaData) {
+        //console.log("Ja, " + physicsItems[sender].name + " met: " + collisionResult[0].object.name);
+        senderSpeed = 0;
+        console.log(rayPoint);
+        }
+
+        }
+
+        physicsItemsScript[sender].updateSpeed(senderSpeed);
+        }
+
+        for (i = 0; i < physicsItemsScript.length; i++) {
+        physicsItemsScript[i].updateData(physicsItems[i].position, tempDeltaData);
+
+        if (physicsItemsScript[i].speed <= 0)
+        continue;
+
+        //console.log("updating: " + physicsItemsScript[i].threeObjectName);
+
+        var tempXZ = physicsItemsScript[i].calculateNewPos();
+        physicsItems[i].position.x = tempXZ[0];
+        physicsItems[i].position.z = tempXZ[2];
+
+
+        }*/
+
+
+        //ballPhysics
+        for (sender = 0; sender < physicsItems.length; sender++) {
+            var senderSpeed = physicsItemsScript[sender].speed;
+            var senderDirection = physicsItemsScript[sender].dirXYZ;
+
+            //if (physicsItemsScript[sender].speed <= 0)
+            //    continue; //If the object is NOT moving skip the object
+
+            //console.log("--------- new item " + physicsItemsScript[sender].threeObjectName);
+
+            var originPoint = physicsItems[sender].position.clone();
+            for (var vertexIndex = 0; vertexIndex < physicsItems[sender].geometry.vertices.length; vertexIndex++) {
+                //Performance increase
+                //if (vertexIndex % 2 != 0)
+                //    continue;
+
+                var localVertex = physicsItems[sender].geometry.vertices[vertexIndex].clone();
+                var globalVertex = localVertex.applyMatrix4(physicsItems[sender].matrix);
+                var directionVector = globalVertex.sub(physicsItems[sender].position);
+
+                //Collision with physics objects
+                var ray = new THREE.Raycaster(originPoint, directionVector.clone().normalize());
+                var collisionResult = ray.intersectObjects(physicsItems);
+
+                if (collisionResult.length > 0 && collisionResult[0].distance < 0.2 + senderSpeed * tempDeltaData) {
+                    //console.log("Ja, " + physicsItems[sender].name + " met: " + collisionResult[0].object.name);
+
+                    //Search for physicsItem related script
+                    for (receiver = 0; receiver < physicsItemsScript.length; receiver++) {
+                        if (physicsItemsScript[receiver].threeObjectName == collisionResult[0].object.name) {
+                            var tempIgnore = physicsItemsScript[receiver].checkIgnore(physicsItemsScript[sender].threeObjectName);
+                            if (tempIgnore == true)
+                                continue;
+
+                            //Send relevant data for physics calculations
+                            physicsItemsScript[receiver].updateHitBy(physicsItemsScript[sender]);
+                            physicsItemsScript[sender].updateHitBy(physicsItemsScript[receiver]);
+
+                            break;
+                        }
+                    }
+                }
+
+                //Collision with static objects
+                collisionResult = ray.intersectObjects(collisionItems);
+                if (collisionResult.length > 0 && collisionResult[0].distance < 1) {
+                    //console.log("Ja, " + physicsItems[sender].name + " met: " + collisionResult[0].object.name);
+                    for (border = 0; border < collisionItems.length; border++) {
+                        if (collisionResult[0].object.name == collisionItems[border].name) {
+                            var tempIgnore = physicsItemsScript[sender].checkIgnore(collisionItems[border].name);
+                            if (tempIgnore == true)
+                                continue;
+
+                            physicsItemsScript[sender].updateHitBy(collisionItems[border]);
+                            break;
+                        }
+                    }
+
+
+                }
+            }
+        }
+
+        for (i = 0; i < physicsItems.length; i++) {
+            physicsItemsScript[i].updateData(physicsItems[i].position, tempDeltaData);
+
+            if (physicsItemsScript[i].lastHitBy.length <= 0 && physicsItemsScript[i].speed <= 0)
+                continue;
+
+            var tempXYZ = physicsItemsScript[i].calculateNewPos();
+            physicsItems[i].position.x = tempXYZ[0];
+            physicsItems[i].position.z = tempXYZ[2];
+
+
+        }
+
+        /*
+        //ballPhysics
+        for (sender = 0; sender < physicsItems.length; sender++) {
+        if (physicsItemsScript[sender].speed <= 0)
+        continue; //If the object is NOT moving skip the object
+
+        var senderData = physicsItemsScript[sender].returnData();
+
+        // Using a little trigonometry calculate a point in
+        // space 1000 units in front of our character
+        var deltaX = Math.floor(Math.sin(senderData[4].x) * 1000);
+        var deltaZ = Math.floor(Math.cos(senderData[4].z) * 1000);
+
+        // Calculate where this collision focus point is in
+        // relation to our character position
+        var focusX = senderData[0] - deltaX;
+        var focusZ = senderData[2] - deltaZ;
+
+        // Fire a ray from the centre point of our character to the
+        // collision focus point
+        var ray = new THREE.Raycaster(physicsItems[sender].object.position,
+        new THREE.Vector3(focusX, 0, focusZ));
+
+        var collisionResult = ray.intersectObjects(physicsItems);
+        console.log(collisionResult);
+        for (collisionHit = 0; collisionHit < collisionResult.length; collisionHit++) {
+
+        console.log("Ja, " + physicsItems[sender].name + " met: " + collisionResult[0].object.name);
+        var tempMat = new THREE.MeshPhongMaterial({ color: 0x07A127 });
+        //Borders of the pooltable
+        var tempGeo = new THREE.tempGeo(1, 3, 1);
+        hitMarker = new THREE.Mesh(tempGeo, tempMat);
+        hitMarker.position.x = collisionResult[collisionHit].position.x;
+        hitMarker.position.y = 0
+        hitMarker.position.z = collisionResult[collisionHit].position.x;
+        scene.add(hitMarker);
+        //if (collisionResult.length > 0 && collisionResult[collisionHit].distance < directionVector.length()) {
+        }
+
+        }
+
+        for (i = 0; i < physicsItemsScript.length; i++) {
+        if (physicsItemsScript[i].speed <= 0)
+        continue;
+
+        //console.log("updating: " + physicsItemsScript[i].threeObjectName);
+        physicsItemsScript[i].updateData(physicsItems[i].position, tempDeltaData);
+
+        var tempXZ = physicsItemsScript[i].calculateNewPos();
+        physicsItems[i].position.x = tempXZ[0];
+        physicsItems[i].position.z = tempXZ[2];
+
+
         }*/
     }
-
-    //Space for future reference
-    /*
-    function strokeBall() {
-    if (speedVariable >= 0.2) {
-    speedVariable -= 0.1;
-    }
-    else if (speedVariable > 0 && speedVariable < 0.2) {
-    speedVariable -= 0.1;
-    controls.target = whiteball.position;
-    camera.position.y = whiteball.position.y + 40;
-    camera.position.x = whiteball.position.x + 30;
-    camera.position.z = whiteball.position.z + 30;
-    }
-    else if (speedVariable <= 0) {
-    cue.position.z = 0.1;
-
-    controls.target = whiteball.position;
-    }
-    return speedVariable;
-    }*/
 	</script>
     
 </body>
