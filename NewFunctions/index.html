@@ -43,7 +43,9 @@
     var mouse = new THREE.Vector2();
     var frameDeltaTime;
 
+    var shootspeed = 30;
     var balls = [];
+    var borders = [];
 
     document.addEventListener('mousemove', onDocumentMouseMove, true);
     document.addEventListener('keydown', onKeyDown, true);
@@ -64,7 +66,9 @@
         controls.update();
 
         setCamera();
-        calcPhysics(frameDeltaTime);
+        if(ballsRoll()) {
+            calcPhysics(frameDeltaTime);
+        }
         renderer.render(scene, camera);
         requestAnimationFrame(render);
     }
@@ -76,16 +80,11 @@
                 shootBall();
                 break;
         }
-
     }
 
-    function collideBall() { }
-    function collideBorder() { }
-    function calculatePos() { }
     function calcPhysics(clockDeltaTime) {
         //for each ball
         for (i = 0; i < balls.length; i++) {
-            //console.log(balls[i]);
             //for each other ball
             if (balls[i].ball.speed <= 0)
                 continue;
@@ -106,14 +105,15 @@
                         var impulseStrength = (1 + coefficient) * dotProduct;
                         var impulseVector = GetImpulseVector(impulseStrength, vectorNormal);
 
-                        balls[i].direction = updateDirection(balls[i].direction, impulseVector, false);
-                        balls[x].direction = updateDirection(balls[i].direction, impulseVector, true);
+                        //balls[i].direction = updateDirection(balls[i].direction, impulseVector, false);
+                        //balls[x].direction = updateDirection(balls[i].direction, impulseVector, true);
+                        balls[i].direction = calculateDirection(balls[i],balls[x]);
+                        balls[x].direction = calculateDirection(balls[x],balls[i]);
 
-                        var iBallSpeed = balls[i].speed;
-                        var xBallSpeed = balls[x].speed;
-
-                        balls[i].ball.speed = xBallSpeed;
-                        balls[x].ball.speed = iBallSpeed;
+                        //var iBallSpeed = balls[i].ball.speed;
+                        //var xBallSpeed = balls[x].ball.speed;
+                        balls[x].ball.speed = balls[i].ball.speed;
+                        balls[i].ball.speed = balls[i].ball.speed / 2;
                     }
                 }
                 else {
@@ -123,26 +123,34 @@
             }
         }
 
-        //Update ball positions
-        for (i = 0; i < balls.length; i++) {
-            if (balls[i].ball.speed <= 0) {
-                continue;
+        //Update ball positions and speed
+        for(i = 0; i < balls.length; i++) {
+            if (balls[i].ball.speed > 0) {
+                balls[i].ball.position = calculatePos(balls[i], clockDeltaTime);
+                balls[i].ball.speed = calculateSpeed(balls[i].ball.speed);
             }
-
-            //console.log(physicsItemsScript[i].dirXYZ);
-            var translateX = balls[i].ball.speed * clockDeltaTime * balls[i].direction.x;
-            var translateY = balls[i].ball.speed * clockDeltaTime * balls[i].direction.y;
-            var translateZ = balls[i].ball.speed * clockDeltaTime * balls[i].direction.z;
-            console.log(clockDeltaTime);
-            balls[i].ball.position.x += translateX;
-            balls[i].ball.position.y += 0;
-            balls[i].ball.position.z += translateZ;
-            console.log(balls[i].ball.position);
-            //console.log(physicsItemsScript[i].dirXYZ)
-            //physicsItems[i].position.add(physicsItemsScript[i].dirXYZ)
-            balls[i].ball.speed = calculateSpeed(balls[i].ball.speed);
         }
 
+    }
+
+    function calculateDirection(ball1,ball2) {
+        //fills in the direction of the ball when collision happens
+        return new THREE.Vector3(ball1.ball.position.y - ball1.ball.position.x,ball2.ball.position.y - ball2.ball.position.x,0).normalize()
+         }
+
+    function collideBorder() {
+        //if border is hit calculates direction and gives it to the ball
+         }
+
+    function calculatePos(item, clockDeltaTime) {
+        var translateX = item.ball.speed * clockDeltaTime * item.direction.x;
+        var translateY = item.ball.speed * clockDeltaTime * item.direction.y;
+        var translateZ = item.ball.speed * clockDeltaTime * item.direction.z;
+        item.ball.position.x += translateX;
+        item.ball.position.y += 0;
+        item.ball.position.z += translateZ;
+
+        return item.ball.position;
     }
 
     function updateDirection(objDirection, impulseVector, add) {
@@ -169,7 +177,7 @@
 
     function shootBall() {
         if (!ballsRoll()) {
-            whiteball.ball.speed = 30;
+            whiteball.ball.speed = shootspeed;
             whiteball.direction = camera.getWorldDirection();
         }
     }
@@ -334,6 +342,11 @@
         pooltable.castShadow = true;
         pooltable.receiveShadow = true;
         poolGroup.add(pooltable);
+
+        borders.push(b1);
+        borders.push(b2);
+        borders.push(b3);
+        borders.push(b4);
 
         //Complete pooltable position;
         poolGroup.position.x = 0;
