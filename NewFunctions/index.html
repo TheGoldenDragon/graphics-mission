@@ -79,6 +79,30 @@
             case 32:
                 shootBall();
                 break;
+            case 37:
+                whiteball.direction.x = -1;//down
+                whiteball.direction.y = 0;
+                whiteball.direction.z = 0;
+                whiteball.ball.speed = 30;
+                break;
+            case 38:
+                whiteball.direction.x = 0;
+                whiteball.direction.y = 0;
+                whiteball.direction.z = -1; //up
+                whiteball.ball.speed = 30;
+                break;
+            case 39:
+                whiteball.direction.x = 1; //right
+                whiteball.direction.y = 0;
+                whiteball.direction.z = 0;
+                whiteball.ball.speed = 30;
+                break;
+            case 40:
+                whiteball.direction.x = 0;
+                whiteball.direction.y = 0;
+                whiteball.direction.z = 1;//left
+                whiteball.ball.speed = 30;
+                break;
         }
     }
 
@@ -109,7 +133,6 @@
                         var impulseStrength = (1 + coefficient) * dotProduct;
                         var impulseVector = GetImpulseVector(impulseStrength, vectorNormal);
 
-                        console.log("new");
                         ballSender.direction = updateDirection(ballSender.direction, impulseVector, true);
                         ballReceiver.direction = updateDirection(ballReceiver.direction, impulseVector, false);
 
@@ -119,9 +142,6 @@
                         ballSender.ball.speed = ballSender.ball.speed
                     }
                 }
-                else {
-                }
-
             }
         }
 
@@ -132,7 +152,6 @@
                 balls[i].ball.speed = calculateSpeed(balls[i].ball.speed);
             }
         }
-
     }
 
     function calculateDirection(ball1,ball2) {
