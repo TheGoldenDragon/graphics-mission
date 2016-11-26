@@ -89,35 +89,37 @@
             if (balls[i].ball.speed <= 0)
                 continue;
 
+            var ballSender = balls[i];
+
             for (x = 0; x < balls.length; x++) {
                 if (balls[i].name == balls[x].name)
                     continue;
 
-                var differenceVector = GetDistanceVector(balls[i].ball.position, balls[x].ball.position);
+                var ballReceiver = balls[x];
+
+                var differenceVector = GetDistanceVector(ballSender.ball.position, ballReceiver.ball.position);
                 var distance = Math.sqrt(differenceVector.x * differenceVector.x + differenceVector.y * differenceVector.y + differenceVector.z * differenceVector.z);
 
                 if (distance < 1 + 1) {
                     var vectorNormal = GetVectorNormal(differenceVector, distance);
-                    var vectorVelocityDelta = GetObjectVelocityDelta(balls[i], balls[x]);
+                    var vectorVelocityDelta = GetObjectVelocityDelta(ballSender, ballReceiver);
                     var dotProduct = GetDotProduct(vectorVelocityDelta, vectorNormal);
                     if (dotProduct > 0) {
                         var coefficient = 0.5;
                         var impulseStrength = (1 + coefficient) * dotProduct;
                         var impulseVector = GetImpulseVector(impulseStrength, vectorNormal);
 
-                        //balls[i].direction = updateDirection(balls[i].direction, impulseVector, false);
-                        //balls[x].direction = updateDirection(balls[i].direction, impulseVector, true);
-                        balls[i].direction = calculateDirection(balls[i],balls[x]);
-                        balls[x].direction = calculateDirection(balls[x],balls[i]);
+                        console.log("new");
+                        ballSender.direction = updateDirection(ballSender.direction, impulseVector, true);
+                        ballReceiver.direction = updateDirection(ballReceiver.direction, impulseVector, false);
 
                         //var iBallSpeed = balls[i].ball.speed;
                         //var xBallSpeed = balls[x].ball.speed;
-                        balls[x].ball.speed = balls[i].ball.speed;
-                        balls[i].ball.speed = balls[i].ball.speed / 2;
+                        ballReceiver.ball.speed = ballSender.ball.speed;
+                        ballSender.ball.speed = ballSender.ball.speed
                     }
                 }
                 else {
-                    //console.log(distance);
                 }
 
             }
@@ -142,15 +144,28 @@
         //if border is hit calculates direction and gives it to the ball
          }
 
-    function calculatePos(item, clockDeltaTime) {
-        var translateX = item.ball.speed * clockDeltaTime * item.direction.x;
-        var translateY = item.ball.speed * clockDeltaTime * item.direction.y;
-        var translateZ = item.ball.speed * clockDeltaTime * item.direction.z;
-        item.ball.position.x += translateX;
-        item.ball.position.y += 0;
-        item.ball.position.z += translateZ;
+    function calculatePos(obj, clockDeltaTime) {
+        var oldPos = new THREE.Vector3(obj.ball.position.x, obj.ball.position.y, obj.ball.position.z);
 
-        return item.ball.position;
+        var translateX = obj.ball.speed * obj.direction.x;
+        var translateY = obj.ball.speed * obj.direction.y;
+        var translateZ = obj.ball.speed * obj.direction.z;
+
+        var newPos = new THREE.Vector3(obj.ball.position.x + translateX, obj.ball.position.y + translateY, obj.ball.position.z + translateZ);
+
+        var distanceVector = GetDistanceVector(newPos, oldPos);
+        var distance = Math.sqrt(distanceVector.x * distanceVector.x + distanceVector.y * distanceVector.y + distanceVector.z * distanceVector.z);
+        var directionNormal = GetVectorNormal(distanceVector, distance);
+
+        translateX = obj.ball.speed * directionNormal.x;
+        translateY = obj.ball.speed * directionNormal.y;
+        translateZ = obj.ball.speed * directionNormal.z;
+
+        obj.ball.position.x += translateX * clockDeltaTime;
+        obj.ball.position.y += 0 * clockDeltaTime;
+        obj.ball.position.z += translateZ * clockDeltaTime;
+
+        return obj.ball.position;
     }
 
     function updateDirection(objDirection, impulseVector, add) {
@@ -179,6 +194,8 @@
         if (!ballsRoll()) {
             whiteball.ball.speed = shootspeed;
             whiteball.direction = camera.getWorldDirection();
+            //whiteball.direction.y = camera.getWorldDirection().y * -1;
+            //whiteball.direction.z = camera.getWorldDirection().z * -1;
         }
     }
 
