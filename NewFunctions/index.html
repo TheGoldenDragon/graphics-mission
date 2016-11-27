@@ -12,10 +12,16 @@
 <script src="js/OrbitControls.js"></script>
 <script src="js/Detector.js"></script>
 
-<div class="scoreboard" style="display: none;">
+<div class="scoreboard">
 	<h2>Scoreboard (statistieken)</h2>
 	<div class="inner">
     	<div class="scores">
+            Snelheid waarme je schiet:<br>
+            <p id="shotspeed">0</p>
+            <input type="hidden" id="shootspeed" onkeypress="onKeyDown(event)">
+            <input type="text" id="shootball" onkeyup="shootBall()" size="40" placeholder="Dit vak aanklikken om het spel te laten werken."><br>
+            Aantal punten:<br>
+            <p id="points">0</p>
         Aantal keren geschoten:<br>
         <p id="shotsfired">0</p>
         Aantal geraakte ballen met de witte bal:<br>
@@ -39,11 +45,14 @@
     if (!Detector.webgl) Detector.addGetWebGLMessage();
 
     var camera, controls, scene, renderer, whiteball, clock, poolGroup, cue;
-    var shotsfired = 0;
+    var shotsFired = 0;
+    var ballConnect = 0;
+    var pointsScored = 0;
+    var ballsHit = 0;
     var mouse = new THREE.Vector2();
     var frameDeltaTime;
 
-    var shootspeed = 90;
+    var shotspeed = 0;
     var balls = [];
     var borders = [];
 
@@ -54,10 +63,11 @@
     render();
 
     function updateScoreboard() {
-        shotsfired += 1;
-        document.getElementById("shotsfired").innerHTML = shotsfired;
-        document.getElementById("ballshit").innerHTML = cue.position.z + shotsfired;
-        document.getElementById("connect").innerHTML = cue.position.x + shotsfired;
+        document.getElementById("shotspeed").innerHTML = shotspeed;
+        document.getElementById("points").innerHTML = pointsScored;
+        document.getElementById("shotsfired").innerHTML = shotsFired;
+        document.getElementById("ballshit").innerHTML = ballsHit;
+        document.getElementById("connect").innerHTML = ballConnect;
 
     }
 
@@ -69,6 +79,7 @@
         if(ballsRoll()) {
             calcPhysics(frameDeltaTime);
         }
+        updateScoreboard();
         renderer.render(scene, camera);
         requestAnimationFrame(render);
     }
@@ -77,7 +88,8 @@
         event.preventDefault();
         switch (event.keyCode) {
             case 32:
-                shootBall();
+                if(shotspeed >= 60){break};
+                shotspeed += 1;
                 break;
             case 37:
                 whiteball.direction.x = -1;//down
@@ -125,6 +137,7 @@
                 var distance = Math.sqrt(differenceVector.x * differenceVector.x + differenceVector.y * differenceVector.y + differenceVector.z * differenceVector.z);
 
                 if (distance < 1 + 1) {
+                    ballConnect += 1;
                     var vectorNormal = GetVectorNormal(differenceVector, distance);
                     var vectorVelocityDelta = GetObjectVelocityDelta(ballSender, ballReceiver);
                     var dotProduct = GetDotProduct(vectorVelocityDelta, vectorNormal);
@@ -235,10 +248,10 @@
 
     function shootBall() {
         if (!ballsRoll()) {
-            whiteball.ball.speed = shootspeed;
+            whiteball.ball.speed = shotspeed;
             whiteball.direction = camera.getWorldDirection();
-            //whiteball.direction.y = camera.getWorldDirection().y * -1;
-            //whiteball.direction.z = camera.getWorldDirection().z * -1;
+            shotsFired += 1;
+            shotspeed = 0;
         }
     }
 
