@@ -43,7 +43,7 @@
     var mouse = new THREE.Vector2();
     var frameDeltaTime;
 
-    var shootspeed = 30;
+    var shootspeed = 90;
     var balls = [];
     var borders = [];
 
@@ -83,25 +83,25 @@
                 whiteball.direction.x = -1;//down
                 whiteball.direction.y = 0;
                 whiteball.direction.z = 0;
-                whiteball.ball.speed = 30;
+                whiteball.ball.speed = 90;
                 break;
             case 38:
                 whiteball.direction.x = 0;
                 whiteball.direction.y = 0;
                 whiteball.direction.z = -1; //up
-                whiteball.ball.speed = 30;
+                whiteball.ball.speed = 90;
                 break;
             case 39:
                 whiteball.direction.x = 1; //right
                 whiteball.direction.y = 0;
                 whiteball.direction.z = 0;
-                whiteball.ball.speed = 30;
+                whiteball.ball.speed = 90;
                 break;
             case 40:
                 whiteball.direction.x = 0;
                 whiteball.direction.y = 0;
                 whiteball.direction.z = 1;//left
-                whiteball.ball.speed = 30;
+                whiteball.ball.speed = 90;
                 break;
         }
     }
@@ -150,6 +150,7 @@
             if (balls[i].ball.speed > 0) {
                 balls[i].ball.position = calculatePos(balls[i], clockDeltaTime);
                 balls[i].ball.speed = calculateSpeed(balls[i].ball.speed);
+                outOfBounds(balls[i]);
             }
         }
     }
@@ -161,7 +162,30 @@
 
     function collideBorder() {
         //if border is hit calculates direction and gives it to the ball
+     }
+
+     function outOfBounds(obj){
+         if (obj.ball.position.z > 38){ //down : push up
+             console.log("hi");
+             obj.direction.z = -1; //up
+             obj.ball.speed += 1;
          }
+         if (obj.ball.position.z < -38){ //up : push down
+             console.log("hi");
+             obj.direction.z = 1;//left
+             obj.ball.speed += 1;
+         }
+         if (obj.ball.position.x > 18){ //right : push left
+             console.log("hi");
+             obj.direction.x = -1;//down
+             obj.ball.speed += 1;
+         }
+         if (obj.ball.position.x < -18){ //left : push right
+             console.log("hi");
+             obj.direction.x = 1; //right
+             obj.ball.speed += 1;
+         }
+    }
 
     function calculatePos(obj, clockDeltaTime) {
         var oldPos = new THREE.Vector3(obj.ball.position.x, obj.ball.position.y, obj.ball.position.z);
