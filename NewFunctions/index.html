@@ -76,7 +76,7 @@
         controls.update();
 
         setCamera();
-        if(ballsRoll()) {
+        if (ballsRoll()) {
             calcPhysics(frameDeltaTime);
         }
         updateScoreboard();
@@ -88,11 +88,11 @@
         event.preventDefault();
         switch (event.keyCode) {
             case 32:
-                if(shotspeed >= 60){break};
+                if (shotspeed >= 60) { break };
                 shotspeed += 1;
                 break;
             case 37:
-                whiteball.direction.x = -1;//down
+                whiteball.direction.x = -1; //down
                 whiteball.direction.y = 0;
                 whiteball.direction.z = 0;
                 whiteball.ball.speed = 90;
@@ -112,7 +112,7 @@
             case 40:
                 whiteball.direction.x = 0;
                 whiteball.direction.y = 0;
-                whiteball.direction.z = 1;//left
+                whiteball.direction.z = 1; //left
                 whiteball.ball.speed = 90;
                 break;
         }
@@ -159,7 +159,7 @@
         }
 
         //Update ball positions and speed
-        for(i = 0; i < balls.length; i++) {
+        for (i = 0; i < balls.length; i++) {
             if (balls[i].ball.speed > 0) {
                 balls[i].ball.position = calculatePos(balls[i], clockDeltaTime);
                 balls[i].ball.speed = calculateSpeed(balls[i].ball.speed);
@@ -168,36 +168,32 @@
         }
     }
 
-    function calculateDirection(ball1,ball2) {
+    function calculateDirection(ball1, ball2) {
         //fills in the direction of the ball when collision happens
-        return new THREE.Vector3(ball1.ball.position.y - ball1.ball.position.x,ball2.ball.position.y - ball2.ball.position.x,0).normalize()
-         }
+        return new THREE.Vector3(ball1.ball.position.y - ball1.ball.position.x, ball2.ball.position.y - ball2.ball.position.x, 0).normalize()
+    }
 
     function collideBorder() {
         //if border is hit calculates direction and gives it to the ball
-     }
+    }
 
-     function outOfBounds(obj){
-         if (obj.ball.position.z > 38){ //down : push up
-             console.log("hi");
-             obj.direction.z = -1; //up
-             obj.ball.speed += 1;
-         }
-         if (obj.ball.position.z < -38){ //up : push down
-             console.log("hi");
-             obj.direction.z = 1;//left
-             obj.ball.speed += 1;
-         }
-         if (obj.ball.position.x > 18){ //right : push left
-             console.log("hi");
-             obj.direction.x = -1;//down
-             obj.ball.speed += 1;
-         }
-         if (obj.ball.position.x < -18){ //left : push right
-             console.log("hi");
-             obj.direction.x = 1; //right
-             obj.ball.speed += 1;
-         }
+    function outOfBounds(obj) {
+        if (obj.ball.position.z > 43) { //down : push up
+            obj.direction.z = -1; //up
+            obj.ball.speed += 1;
+        }
+        if (obj.ball.position.z < -43) { //up : push down
+            obj.direction.z = 1; //left
+            obj.ball.speed += 1;
+        }
+        if (obj.ball.position.x > 21) { //right : push left
+            obj.direction.x = -1; //down
+            obj.ball.speed += 1;
+        }
+        if (obj.ball.position.x < -21) { //left : push right
+            obj.direction.x = 1; //right
+            obj.ball.speed *= 1;
+        }
     }
 
     function calculatePos(obj, clockDeltaTime) {
@@ -320,14 +316,15 @@
 
     // After loading JSON from our file, we add it to the scene
     function addModelToScene(geometry, materials) {
-        var material = new THREE.MeshFaceMaterial(materials);
+        //var material = new THREE.MeshFaceMaterial(materials);
+        var material = new THREE.MeshPhongMaterial({ color: 0x07A127 });
         model = new THREE.Mesh(geometry, material);
         model.scale.set(30, 30, 30);
         model.position.set(0, 6, 0);
         model.rotation.y = Math.PI / 2;
         model.castShadow = true;
         model.receiveShadow = true;
-        //scene.add(model);
+        scene.add(model);
     }
 
     function Ball(name, texture, position) // Constructor
@@ -341,6 +338,7 @@
         this.name = name;
         this.ball.speed = 0;
         this.ball.rotation.y = -1.5;
+        this.ball.castShadow = true;
         scene.add(this.ball);
         return this;
     }
@@ -372,6 +370,7 @@
         var modelloader = new THREE.JSONLoader();
         modelloader.load("models/pooltable.json", addModelToScene);
 
+        /*
         //pooltable color
         var poolMaterial = new THREE.MeshPhongMaterial({ color: 0x07A127 });
         //Borders of the pooltable
@@ -425,7 +424,7 @@
         poolGroup.position.x = 0;
         poolGroup.position.y = 0;
         poolGroup.position.z = 0;
-
+        */
         //Load Textures
         var loader = new THREE.TextureLoader();
 
@@ -454,33 +453,33 @@
 
         //Balls
         //White ball
-        whiteball = new Ball("whiteball", new THREE.MeshPhongMaterial({ color: 0xffffee }), new THREE.Vector3(0, 1.5, 20));
+        whiteball = new Ball("whiteball", new THREE.MeshPhongMaterial({ color: 0xffffee }), new THREE.Vector3(0, 1.8, 20));
 
         //Colored Balls
         //First row
-        ball1 = new Ball("ball1", new THREE.MeshPhongMaterial({ map: textureball1 }), new THREE.Vector3(0, 1.5, -18));
+        ball1 = new Ball("ball1", new THREE.MeshPhongMaterial({ map: textureball1 }), new THREE.Vector3(0, 1.8, -18));
 
         //Second row
-        ball2 = new Ball("ball2", new THREE.MeshPhongMaterial({ map: textureball2 }), new THREE.Vector3(-1.1, 1.5, -20));
-        ball3 = new Ball("ball3", new THREE.MeshPhongMaterial({ map: textureball3 }), new THREE.Vector3(1.1, 1.5, -20));
+        ball2 = new Ball("ball2", new THREE.MeshPhongMaterial({ map: textureball2 }), new THREE.Vector3(-1.1, 1.8, -20));
+        ball3 = new Ball("ball3", new THREE.MeshPhongMaterial({ map: textureball3 }), new THREE.Vector3(1.1, 1.8, -20));
 
         //Third row
-        ball4 = new Ball("ball4", new THREE.MeshPhongMaterial({ map: textureball4 }), new THREE.Vector3(-2.1, 1.5, -22));
-        ball5 = new Ball("ball5", new THREE.MeshPhongMaterial({ map: textureball5 }), new THREE.Vector3(0, 1.5, -22));
-        ball6 = new Ball("ball6", new THREE.MeshPhongMaterial({ map: textureball6 }), new THREE.Vector3(2.1, 1.5, -22));
+        ball4 = new Ball("ball4", new THREE.MeshPhongMaterial({ map: textureball4 }), new THREE.Vector3(-2.1, 1.8, -22));
+        ball5 = new Ball("ball5", new THREE.MeshPhongMaterial({ map: textureball5 }), new THREE.Vector3(0, 1.8, -22));
+        ball6 = new Ball("ball6", new THREE.MeshPhongMaterial({ map: textureball6 }), new THREE.Vector3(2.1, 1.8, -22));
 
         //Fourth row
-        ball7 = new Ball("ball7", new THREE.MeshPhongMaterial({ map: textureball7 }), new THREE.Vector3(3.2, 1.5, -24));
-        ball8 = new Ball("ball8", new THREE.MeshPhongMaterial({ map: textureball8 }), new THREE.Vector3(1, 1.5, -24));
-        ball9 = new Ball("ball9", new THREE.MeshPhongMaterial({ map: textureball9 }), new THREE.Vector3(-1.1, 1.5, -24));
-        ball10 = new Ball("ball10", new THREE.MeshPhongMaterial({ map: textureball10 }), new THREE.Vector3(-3.2, 1.5, -24));
+        ball7 = new Ball("ball7", new THREE.MeshPhongMaterial({ map: textureball7 }), new THREE.Vector3(3.2, 1.8, -24));
+        ball8 = new Ball("ball8", new THREE.MeshPhongMaterial({ map: textureball8 }), new THREE.Vector3(1, 1.8, -24));
+        ball9 = new Ball("ball9", new THREE.MeshPhongMaterial({ map: textureball9 }), new THREE.Vector3(-1.1, 1.8, -24));
+        ball10 = new Ball("ball10", new THREE.MeshPhongMaterial({ map: textureball10 }), new THREE.Vector3(-3.2, 1.8, -24));
 
         //Fifth row
-        ball11 = new Ball("ball11", new THREE.MeshPhongMaterial({ map: textureball11 }), new THREE.Vector3(-4.3, 1.5, -26));
-        ball12 = new Ball("ball12", new THREE.MeshPhongMaterial({ map: textureball12 }), new THREE.Vector3(-2.1, 1.5, -26));
-        ball13 = new Ball("ball13", new THREE.MeshPhongMaterial({ map: textureball13 }), new THREE.Vector3(0, 1.5, -26));
-        ball14 = new Ball("ball14", new THREE.MeshPhongMaterial({ map: textureball14 }), new THREE.Vector3(2.1, 1.5, -26));
-        ball15 = new Ball("ball15", new THREE.MeshPhongMaterial({ map: textureball15 }), new THREE.Vector3(4.3, 1.5, -26));
+        ball11 = new Ball("ball11", new THREE.MeshPhongMaterial({ map: textureball11 }), new THREE.Vector3(-4.3, 1.8, -26));
+        ball12 = new Ball("ball12", new THREE.MeshPhongMaterial({ map: textureball12 }), new THREE.Vector3(-2.1, 1.8, -26));
+        ball13 = new Ball("ball13", new THREE.MeshPhongMaterial({ map: textureball13 }), new THREE.Vector3(0, 1.8, -26));
+        ball14 = new Ball("ball14", new THREE.MeshPhongMaterial({ map: textureball14 }), new THREE.Vector3(2.1, 1.8, -26));
+        ball15 = new Ball("ball15", new THREE.MeshPhongMaterial({ map: textureball15 }), new THREE.Vector3(4.3, 2, -26));
 
         //Add balls to ballsArray;
         balls.push(whiteball);
@@ -513,7 +512,7 @@
         speedVariable = 0;
 
         //Lightning
-        scene.add(new THREE.AmbientLight(0x111111));
+        scene.add(new THREE.AmbientLight(0x111111, 1));
         var sphere = new THREE.SphereGeometry(0.5, 16, 8);
 
         //Spotlight 1
