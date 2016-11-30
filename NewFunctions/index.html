@@ -316,8 +316,8 @@
 
     // After loading JSON from our file, we add it to the scene
     function addModelToScene(geometry, materials) {
-        //var material = new THREE.MeshFaceMaterial(materials);
-        var material = new THREE.MeshPhongMaterial({ color: 0x07A127 });
+        var material = new THREE.MeshFaceMaterial(materials);
+        //var material = new THREE.MeshPhongMaterial({ color: 0x07A127 });
         model = new THREE.Mesh(geometry, material);
         model.scale.set(30, 30, 30);
         model.position.set(0, 6, 0);
