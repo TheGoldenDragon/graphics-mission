@@ -6,13 +6,30 @@ body{
 	overflow:hidden;
 }
 
-#poolgame {
-    padding-right: 0;
+#gameContainer{
+	position: relative;
+	padding-right: 0;
 	padding-top:29px;
-    margin-left: auto;
-    margin-right: auto;
-    display: block;
+	padding-left:160px;
+	margin-left: auto;
+	margin-right: auto;
+	display: block;
 }
+
+#gameCanvas, #overlay{
+	position: absolute;
+}
+
+#gameCanvas {
+	 padding-right: 0;
+	 /*padding-top:29px;*/
+	 margin-left: auto;
+	 margin-right: auto;
+	 display: block;
+	 border: 1px solid black;
+ }
+
+
 .main {width:1517px;height:1126px;float:right;margin-right:5px;margin-top:-50px;
 background-image:url(../img/background.png);}
 

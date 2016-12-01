@@ -11,15 +11,15 @@
 <script src="js/three.js"></script>
 <script src="js/OrbitControls.js"></script>
 <script src="js/Detector.js"></script>
+<script src="js/MathFunctions.js"></script>
+<script src="js/InitializeScene.js"></script>
+<script src="js/GameControls.js"></script>
 
 <div class="scoreboard">
 	<h2>Scoreboard (statistieken)</h2>
 	<div class="inner">
     	<div class="scores">
             Snelheid waarme je schiet:<br>
-            <p id="shotspeed">0</p>
-            <input type="hidden" id="shootspeed" onkeypress="onKeyDown(event)">
-            <input type="text" id="shootball" onkeyup="shootBall()" size="40" placeholder="Dit vak aanklikken om het spel te laten werken."><br>
             Aantal punten:<br>
             <p id="points">0</p>
         Aantal keren geschoten:<br>
@@ -36,15 +36,20 @@
     </div>
 </div>
 <div class="main">
-<div class="logo"></div>
-<canvas id="poolgame">
-</canvas>
+    <div class="logo"></div>
+    <div id="gameContainer">
+        <canvas id="gameCanvas"></canvas>
+        <div id="overlay" style="background-color:blue; width: 100px; height: 100px">
+            <p id="shotspeed">0</p>
+            <p id="points">0</p>
+        </div>
+    </div>
 </div>
 
 <script>
     if (!Detector.webgl) Detector.addGetWebGLMessage();
 
-    var camera, controls, scene, renderer, whiteball, clock, poolGroup, cue;
+    var camera, controls, scene, renderer, whiteball, clock, cue;
     var shotsFired = 0;
     var ballConnect = 0;
     var pointsScored = 0;
@@ -54,17 +59,17 @@
 
     var shotspeed = 0;
     var balls = [];
-    var borders = [];
 
     document.addEventListener('mousemove', onDocumentMouseMove, true);
     document.addEventListener('keydown', onKeyDown, true);
+    document.addEventListener('keyup', onKeyUp, true);
 
     init(); //create objects e.g.
     render();
 
     function updateScoreboard() {
-        document.getElementById("shotspeed").innerHTML = shotspeed;
-        document.getElementById("points").innerHTML = pointsScored;
+        document.getElementById("shotspeed").innerHTML = "HitPower: " + shotspeed;
+        document.getElementById("points").innerHTML = "Score: " + pointsScored;
         document.getElementById("shotsfired").innerHTML = shotsFired;
         document.getElementById("ballshit").innerHTML = ballsHit;
         document.getElementById("connect").innerHTML = ballConnect;
@@ -82,40 +87,6 @@
         updateScoreboard();
         renderer.render(scene, camera);
         requestAnimationFrame(render);
-    }
-
-    function onKeyDown(event) {
-        event.preventDefault();
-        switch (event.keyCode) {
-            case 32:
-                if (shotspeed >= 60) { break };
-                shotspeed += 1;
-                break;
-            case 37:
-                whiteball.direction.x = -1; //down
-                whiteball.direction.y = 0;
-                whiteball.direction.z = 0;
-                whiteball.ball.speed = 90;
-                break;
-            case 38:
-                whiteball.direction.x = 0;
-                whiteball.direction.y = 0;
-                whiteball.direction.z = -1; //up
-                whiteball.ball.speed = 90;
-                break;
-            case 39:
-                whiteball.direction.x = 1; //right
-                whiteball.direction.y = 0;
-                whiteball.direction.z = 0;
-                whiteball.ball.speed = 90;
-                break;
-            case 40:
-                whiteball.direction.x = 0;
-                whiteball.direction.y = 0;
-                whiteball.direction.z = 1; //left
-                whiteball.ball.speed = 90;
-                break;
-        }
     }
 
     function calcPhysics(clockDeltaTime) {
@@ -168,78 +139,34 @@
         }
     }
 
-    function calculateDirection(ball1, ball2) {
-        //fills in the direction of the ball when collision happens
-        return new THREE.Vector3(ball1.ball.position.y - ball1.ball.position.x, ball2.ball.position.y - ball2.ball.position.x, 0).normalize()
-    }
-
-    function collideBorder() {
-        //if border is hit calculates direction and gives it to the ball
-    }
-
-    function outOfBounds(obj) {
-        if (obj.ball.position.z > 43) { //down : push up
-            obj.direction.z = -1; //up
-            obj.ball.speed += 1;
-        }
-        if (obj.ball.position.z < -43) { //up : push down
-            obj.direction.z = 1; //left
-            obj.ball.speed += 1;
-        }
-        if (obj.ball.position.x > 21) { //right : push left
-            obj.direction.x = -1; //down
-            obj.ball.speed += 1;
-        }
-        if (obj.ball.position.x < -21) { //left : push right
-            obj.direction.x = 1; //right
-            obj.ball.speed *= 1;
-        }
-    }
-
-    function calculatePos(obj, clockDeltaTime) {
-        var oldPos = new THREE.Vector3(obj.ball.position.x, obj.ball.position.y, obj.ball.position.z);
-
-        var translateX = obj.ball.speed * obj.direction.x;
-        var translateY = obj.ball.speed * obj.direction.y;
-        var translateZ = obj.ball.speed * obj.direction.z;
-
-        var newPos = new THREE.Vector3(obj.ball.position.x + translateX, obj.ball.position.y + translateY, obj.ball.position.z + translateZ);
-
-        var distanceVector = GetDistanceVector(newPos, oldPos);
-        var distance = Math.sqrt(distanceVector.x * distanceVector.x + distanceVector.y * distanceVector.y + distanceVector.z * distanceVector.z);
-        var directionNormal = GetVectorNormal(distanceVector, distance);
-
-        translateX = obj.ball.speed * directionNormal.x;
-        translateY = obj.ball.speed * directionNormal.y;
-        translateZ = obj.ball.speed * directionNormal.z;
-
-        obj.ball.position.x += translateX * clockDeltaTime;
-        obj.ball.position.y += 0 * clockDeltaTime;
-        obj.ball.position.z += translateZ * clockDeltaTime;
-
-        return obj.ball.position;
-    }
-
-    function updateDirection(objDirection, impulseVector, add) {
-        var newX, newZ;
-        if (add == false) {
-            newX = objDirection.x - impulseVector.x;
-            //this.dirXYZ.y -= impulseVector.y;
-            newZ = objDirection.z - impulseVector.z;
-        }
-        else {
-            newX = objDirection.x + impulseVector.x;
-            //this.dirXYZ.y += impulseVector.y;
-            newZ = objDirection.z + impulseVector.z;
-        }
-        return new THREE.Vector3(newX, 0, newZ);
-    }
-
     function calculateSpeed(speed) {
         if (speed > 0) {
             return speed -= 0.1;
         }
         else { return 0; }
+    }
+
+    function outOfBounds(ball) {
+        if (ball.ball.position.z > 40.6) { //down : push up
+            ball.direction.z = -1; //up
+            ball.ball.position.z = 40.6
+            ball.ball.speed *= 0.75;
+        }
+        if (ball.ball.position.z < -41.1) { //up : push down
+            ball.direction.z = 1; //left
+            ball.ball.position.z = -41.1
+            ball.ball.speed *= 0.75;
+        }
+        if (ball.ball.position.x > 22) { //right : push left
+            ball.direction.x = -1; //down
+            ball.ball.position.x = 22
+            ball.ball.speed *= 0.75;
+        }
+        if (ball.ball.position.x < -22) { //left : push right
+            ball.direction.x = 1; //right
+            ball.ball.position.x = -22
+            ball.ball.speed *= 0.75;
+        }
     }
 
     function shootBall() {
@@ -263,334 +190,13 @@
     function setCamera() {
         if (ballsRoll()) {
             cue.position.z = 100;
-            controls.target = poolGroup.position;
+            controls.target = new THREE.Vector3(0,whiteball.ball.position.x,0);
         }
         else {
             cue.position.z = 0.1;
             controls.target = whiteball.ball.position;
         }
     }
-
-    function GetDistanceVector(objX, objY) {
-        var deltaX = objX.x - objY.x;
-        var deltaY = objX.y - objY.y;
-        var deltaZ = objX.z - objY.z;
-
-        return new THREE.Vector3(deltaX, deltaY, deltaZ);
-    }
-
-    function GetVectorNormal(vector, distance) {
-        var normalX = vector.x / distance;
-        var normalY = vector.y / distance;
-        var normalZ = vector.z / distance;
-        return new THREE.Vector3(normalX, normalY, normalZ);
-    }
-
-    function GetObjectVelocityDelta(objX, objY) {
-        var deltaX = objY.direction.x * objY.ball.speed * frameDeltaTime - objX.direction.x - objX.ball.speed * frameDeltaTime;
-        var deltaY = objY.direction.y * objY.ball.speed * frameDeltaTime - objX.direction.y - objX.ball.speed * frameDeltaTime;
-        var deltaZ = objY.direction.z * objY.ball.speed * frameDeltaTime - objX.direction.z - objX.ball.speed * frameDeltaTime;
-        return new THREE.Vector3(deltaX, deltaY, deltaZ);
-    }
-
-    function GetDotProduct(vector1, vector2) {
-        var X = vector1.x * vector2.x
-        var Y = vector1.y * vector2.y
-        var Z = vector1.z * vector2.z
-        return (X + Y + Z)
-    }
-
-    function GetImpulseVector(impulseStrength, vectorNormal) {
-        var x = vectorNormal.x * impulseStrength;
-        var y = vectorNormal.y * impulseStrength;
-        var z = vectorNormal.z * impulseStrength;
-        return new THREE.Vector3(x, y, z);
-    }
-
-    function onDocumentMouseMove(event) {
-        event.preventDefault();
-
-        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-    }
-
-    // After loading JSON from our file, we add it to the scene
-    function addModelToScene(geometry, materials) {
-        var material = new THREE.MeshFaceMaterial(materials);
-        //var material = new THREE.MeshPhongMaterial({ color: 0x07A127 });
-        model = new THREE.Mesh(geometry, material);
-        model.scale.set(30, 30, 30);
-        model.position.set(0, 6, 0);
-        model.rotation.y = Math.PI / 2;
-        model.castShadow = true;
-        model.receiveShadow = true;
-        scene.add(model);
-    }
-
-    function Ball(name, texture, position) // Constructor
-    {
-        this.ball = new THREE.Mesh(new THREE.SphereGeometry(1, 20, 20));
-        this.ball.material = texture;
-        this.ball.position.x = position.x;
-        this.ball.position.y = position.y;
-        this.ball.position.z = position.z;
-        this.direction = new THREE.Vector3(0, 0, 0);
-        this.name = name;
-        this.ball.speed = 0;
-        this.ball.rotation.y = -1.5;
-        this.ball.castShadow = true;
-        scene.add(this.ball);
-        return this;
-    }
-
-    function init() {
-
-        scene = new THREE.Scene();
-        camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        renderer = new THREE.WebGLRenderer({ canvas: poolgame });
-        renderer.setSize(1200, 800);
-        renderer.setClearColor(0x000000);
-        renderer.shadowMap.enabled = true;
-        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-
-        //BackgroundColor
-        var backgroundMaterial = new THREE.MeshBasicMaterial({ color: 0x21aadf });
-        var backgroundMaterial = new THREE.MeshPhongMaterial({ color: 0x21aadf });
-        //BackgroundSize
-        var background = new THREE.Mesh(new THREE.PlaneBufferGeometry(window.innerWidth, window.innerHeight, 2, 2), backgroundMaterial);
-        background.position.y = -24;
-        background.rotation.x = -Math.PI / 2;
-        background.receiveShadow = true;
-        scene.add(background);
-
-        poolGroup = new THREE.Group();
-        scene.add(poolGroup);
-
-        // Load the JSON files and provide callback functions (modelToScene
-        var modelloader = new THREE.JSONLoader();
-        modelloader.load("models/pooltable.json", addModelToScene);
-
-        /*
-        //pooltable color
-        var poolMaterial = new THREE.MeshPhongMaterial({ color: 0x07A127 });
-        //Borders of the pooltable
-        var shortGeometry = new THREE.BoxGeometry(42, 2, 2);
-        b1 = new THREE.Mesh(shortGeometry, poolMaterial);
-        b1.position.x = 0;
-        b1.position.y = 0.5;
-        b1.position.z = 40;
-        b1.castShadow = true;
-        b1.receiveShadow = true;
-        poolGroup.add(b1);
-        b2 = new THREE.Mesh(shortGeometry, poolMaterial);
-        b2.position.x = 0;
-        b2.position.y = 0.5;
-        b2.position.z = -40;
-        b2.castShadow = true;
-        b2.receiveShadow = true;
-        poolGroup.add(b2);
-        var longGeometry = new THREE.BoxGeometry(2, 2, 80);
-        b3 = new THREE.Mesh(longGeometry, poolMaterial);
-        b3.position.x = 20;
-        b3.position.y = 0.5;
-        b3.position.z = 0;
-        b3.castShadow = true;
-        b3.receiveShadow = true;
-        poolGroup.add(b3);
-        b4 = new THREE.Mesh(longGeometry, poolMaterial);
-        b4.position.x = -20;
-        b4.position.y = 0.5;
-        b4.position.z = 0;
-        b4.rotation.z = Math.PI / 2;
-        b4.castShadow = true;
-        b4.receiveShadow = true;
-        poolGroup.add(b4);
-        //Pooltable
-        var poolGeometry = new THREE.BoxGeometry(40, 1, 80);
-        pooltable = new THREE.Mesh(poolGeometry, poolMaterial);
-        pooltable.position.x = 0;
-        pooltable.position.y = 0;
-        pooltable.position.z = 0;
-        pooltable.castShadow = true;
-        pooltable.receiveShadow = true;
-        poolGroup.add(pooltable);
-
-        borders.push(b1);
-        borders.push(b2);
-        borders.push(b3);
-        borders.push(b4);
-
-        //Complete pooltable position;
-        poolGroup.position.x = 0;
-        poolGroup.position.y = 0;
-        poolGroup.position.z = 0;
-        */
-        //Load Textures
-        var loader = new THREE.TextureLoader();
-
-        var textureball1 = loader.load('textures/1.jpg');
-        var textureball2 = loader.load('textures/2.jpg');
-        var textureball3 = loader.load('textures/3.jpg');
-        var textureball4 = loader.load('textures/4.jpg');
-        var textureball5 = loader.load('textures/5.jpg');
-        var textureball6 = loader.load('textures/6.jpg');
-        var textureball7 = loader.load('textures/7.jpg');
-        var textureball8 = loader.load('textures/8.jpg');
-        var textureball9 = loader.load('textures/9.jpg');
-        var textureball10 = loader.load('textures/10.jpg');
-        var textureball11 = loader.load('textures/11.jpg');
-        var textureball12 = loader.load('textures/12.jpg');
-        var textureball13 = loader.load('textures/13.jpg');
-        var textureball14 = loader.load('textures/14.jpg');
-        var textureball15 = loader.load('textures/15.jpg');
-
-        //cue
-        var cueGeometry = new THREE.CylinderGeometry(0.1, 0.4, 30);
-        var cueColor = new THREE.MeshPhongMaterial({ color: 0xb88b45 });
-        cue = new THREE.Mesh(cueGeometry, cueColor);
-        cue.castShadow = true;
-        cue.receiveShadow = true;
-
-        //Balls
-        //White ball
-        whiteball = new Ball("whiteball", new THREE.MeshPhongMaterial({ color: 0xffffee }), new THREE.Vector3(0, 1.8, 20));
-
-        //Colored Balls
-        //First row
-        ball1 = new Ball("ball1", new THREE.MeshPhongMaterial({ map: textureball1 }), new THREE.Vector3(0, 1.8, -18));
-
-        //Second row
-        ball2 = new Ball("ball2", new THREE.MeshPhongMaterial({ map: textureball2 }), new THREE.Vector3(-1.1, 1.8, -20));
-        ball3 = new Ball("ball3", new THREE.MeshPhongMaterial({ map: textureball3 }), new THREE.Vector3(1.1, 1.8, -20));
-
-        //Third row
-        ball4 = new Ball("ball4", new THREE.MeshPhongMaterial({ map: textureball4 }), new THREE.Vector3(-2.1, 1.8, -22));
-        ball5 = new Ball("ball5", new THREE.MeshPhongMaterial({ map: textureball5 }), new THREE.Vector3(0, 1.8, -22));
-        ball6 = new Ball("ball6", new THREE.MeshPhongMaterial({ map: textureball6 }), new THREE.Vector3(2.1, 1.8, -22));
-
-        //Fourth row
-        ball7 = new Ball("ball7", new THREE.MeshPhongMaterial({ map: textureball7 }), new THREE.Vector3(3.2, 1.8, -24));
-        ball8 = new Ball("ball8", new THREE.MeshPhongMaterial({ map: textureball8 }), new THREE.Vector3(1, 1.8, -24));
-        ball9 = new Ball("ball9", new THREE.MeshPhongMaterial({ map: textureball9 }), new THREE.Vector3(-1.1, 1.8, -24));
-        ball10 = new Ball("ball10", new THREE.MeshPhongMaterial({ map: textureball10 }), new THREE.Vector3(-3.2, 1.8, -24));
-
-        //Fifth row
-        ball11 = new Ball("ball11", new THREE.MeshPhongMaterial({ map: textureball11 }), new THREE.Vector3(-4.3, 1.8, -26));
-        ball12 = new Ball("ball12", new THREE.MeshPhongMaterial({ map: textureball12 }), new THREE.Vector3(-2.1, 1.8, -26));
-        ball13 = new Ball("ball13", new THREE.MeshPhongMaterial({ map: textureball13 }), new THREE.Vector3(0, 1.8, -26));
-        ball14 = new Ball("ball14", new THREE.MeshPhongMaterial({ map: textureball14 }), new THREE.Vector3(2.1, 1.8, -26));
-        ball15 = new Ball("ball15", new THREE.MeshPhongMaterial({ map: textureball15 }), new THREE.Vector3(4.3, 2, -26));
-
-        //Add balls to ballsArray;
-        balls.push(whiteball);
-        balls.push(ball1);
-        balls.push(ball2);
-        balls.push(ball3);
-        balls.push(ball4);
-        balls.push(ball5);
-        balls.push(ball6);
-        balls.push(ball7);
-        balls.push(ball8);
-        balls.push(ball9);
-        balls.push(ball10);
-        balls.push(ball11);
-        balls.push(ball12);
-        balls.push(ball13);
-        balls.push(ball14);
-        balls.push(ball15);
-
-        camera.add(cue);
-        cue.position.set(1.7, -0.4, -20);
-        cue.rotation.x = -1.55;
-        cue.rotation.y = 0;
-        cue.rotation.z = 0.1;
-        cue.position.applyMatrix4(camera.matrixWorld);
-
-        //Elements need for movement and collision.
-        speed = new THREE.Vector3();
-        clock = new THREE.Clock();
-        speedVariable = 0;
-
-        //Lightning
-        scene.add(new THREE.AmbientLight(0x111111, 1));
-        var sphere = new THREE.SphereGeometry(0.5, 16, 8);
-
-        //Spotlight 1
-        var light1 = new THREE.SpotLight(0xf0f0f0, 0.7, 100, Math.PI * 0.8);
-        light1.add(new THREE.Mesh(sphere, new THREE.MeshBasicMaterial({ color: 0xf0f0f0 })));
-        light1.position.set(8, 48, -16);
-        light1.castShadow = true;
-        light1.shadow.camera.near = 0.1;
-        light1.shadow.camera.far = 1000;
-        light1.shadow.mapSize.width = 1024;
-        light1.shadow.mapSize.height = 1024;
-        lightTarget1 = new THREE.Object3D();
-        lightTarget1.position.set(8, -20, -16);
-        light1.target = lightTarget1;
-        scene.add(lightTarget1);
-        scene.add(light1);
-
-        //Spotlight 2
-        var light2 = new THREE.SpotLight(0xf0f0f0, 0.7, 100, Math.PI * 0.8);
-        light2.add(new THREE.Mesh(sphere, new THREE.MeshBasicMaterial({ color: 0xf0f0f0 })));
-        light2.position.set(8, 48, 16);
-        light2.castShadow = true;
-        light2.shadow.camera.near = 0.1;
-        light2.shadow.camera.far = 1000;
-        light2.shadow.mapSize.width = 1024;
-        light2.shadow.mapSize.height = 1024;
-        lightTarget2 = new THREE.Object3D();
-        lightTarget2.position.set(8, -20, 16);
-        light2.target = lightTarget2;
-        scene.add(lightTarget2);
-        scene.add(light2);
-
-        //Spotlight 3
-        var light3 = new THREE.SpotLight(0xf0f0f0, 0.7, 100, Math.PI * 0.8);
-        light3.add(new THREE.Mesh(sphere, new THREE.MeshBasicMaterial({ color: 0xf0f0f0 })));
-        light3.position.set(-8, 48, -16);
-        light3.castShadow = true;
-        light3.shadow.camera.near = 0.1;
-        light3.shadow.camera.far = 1000;
-        light3.shadow.mapSize.width = 1024;
-        light3.shadow.mapSize.height = 1024;
-        lightTarget3 = new THREE.Object3D();
-        lightTarget3.position.set(-8, -20, -16);
-        light3.target = lightTarget3;
-        scene.add(lightTarget3);
-        scene.add(light3);
-
-        //Spotlight 4
-        var light4 = new THREE.SpotLight(0xf0f0f0, 0.7, 100, Math.PI * 0.8);
-        light4.add(new THREE.Mesh(sphere, new THREE.MeshBasicMaterial({ color: 0xf0f0f0 })));
-        light4.position.set(-8, 48, 16);
-        light4.castShadow = true;
-        light4.shadow.camera.near = 0.1;
-        light4.shadow.camera.far = 1000;
-        light4.shadow.mapSize.width = 1024;
-        light4.shadow.mapSize.height = 1024;
-        lightTarget4 = new THREE.Object3D();
-        lightTarget4.position.set(-8, -20, 16);
-        light4.target = lightTarget4;
-        scene.add(light4);
-        scene.add(lightTarget4);
-
-        //Camera positioning
-        camera.position.y = 20;
-        camera.position.x = 0;
-        camera.position.z = 70;
-        //camera.lookAt(whiteball.position);
-        scene.add(camera);
-
-        //Camera controls
-        controls = new THREE.OrbitControls(camera, renderer.domElement);
-        //controls.addEventListener( 'change', render ); // add this only if there is no animation loop (requestAnimationFrame)
-        controls.enableDamping = true;
-        controls.dampingFactor = 0.25;
-        controls.enableZoom = true;
-        controls.target = poolGroup.position;
-    }
-
 	</script>
     
 </body>
