@@ -19,7 +19,6 @@
 	<h2>Scoreboard (statistieken)</h2>
 	<div class="inner">
     	<div class="scores">
-            Snelheid waarme je schiet:<br>
             Aantal punten:<br>
             <p id="points">0</p>
         Aantal keren geschoten:<br>
@@ -39,9 +38,9 @@
     <div class="logo"></div>
     <div id="gameContainer">
         <canvas id="gameCanvas"></canvas>
-        <div id="overlay" style="background-color:blue; width: 100px; height: 100px">
+        <div id="overlay" style="background-color:#128000; width: 100px; height: 50px; padding-left:12px; margin:10px;">
             <p id="shotspeed">0</p>
-            <p id="points">0</p>
+            <p id="points"></p>
         </div>
     </div>
 </div>
@@ -69,7 +68,7 @@
 
     function updateScoreboard() {
         document.getElementById("shotspeed").innerHTML = "HitPower: " + shotspeed;
-        document.getElementById("points").innerHTML = "Score: " + pointsScored;
+        document.getElementById("points").innerHTML = pointsScored;
         document.getElementById("shotsfired").innerHTML = shotsFired;
         document.getElementById("ballshit").innerHTML = ballsHit;
         document.getElementById("connect").innerHTML = ballConnect;
@@ -190,7 +189,7 @@
     function setCamera() {
         if (ballsRoll()) {
             cue.position.z = 100;
-            controls.target = new THREE.Vector3(0,whiteball.ball.position.x,0);
+            controls.target = new THREE.Vector3(0,13,0);
         }
         else {
             cue.position.z = 0.1;
