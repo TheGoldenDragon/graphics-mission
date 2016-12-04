@@ -2,7 +2,7 @@
  * Created by Robert on 1-12-2016.
  */
 
-function calculatePos(ball, clockDeltaTime) {
+function CalculatePos(ball, clockDeltaTime) {
     var oldPos = new THREE.Vector3(ball.ball.position.x, ball.ball.position.y, ball.ball.position.z);
 
     var translateX = ball.ball.speed * ball.direction.x;
@@ -26,12 +26,12 @@ function calculatePos(ball, clockDeltaTime) {
     return ball.ball.position;
 }
 
-function calculateDirection(ball1, ball2) {
+function CalculateDirection(ball1, ball2) {
     //fills in the direction of the ball when collision happens
     return new THREE.Vector3(ball1.ball.position.y - ball1.ball.position.x, ball2.ball.position.y - ball2.ball.position.x, 0).normalize()
 }
 
-function updateDirection(ballDirection, impulseVector, add) {
+function UpdateDirection(ballDirection, impulseVector, add) {
     var newX, newZ;
     if (add == false) {
         newX = ballDirection.x - impulseVector.x;

@@ -13,7 +13,9 @@
 <script src="js/Detector.js"></script>
 <script src="js/MathFunctions.js"></script>
 <script src="js/InitializeScene.js"></script>
-<script src="js/GameControls.js"></script>
+<script src="js/Controls.js"></script>
+<script src="js/GameController.js"></script>
+<script src="js/GameTurnData.js"></script>
 
 <div class="scoreboard">
 	<h2>Scoreboard (statistieken)</h2>
@@ -40,7 +42,9 @@
         <canvas id="gameCanvas"></canvas>
         <div id="overlay" style="background-color:#128000; width: 100px; height: 50px; padding-left:12px; margin:10px;">
             <p id="shotspeed">0</p>
-            <p id="points"></p>
+            <p id="currentplayer"></p>
+            <p id="currentturn"></p>
+            <p id="currentplayertarget"></p>
         </div>
     </div>
 </div>
@@ -58,37 +62,43 @@
 
     var shotspeed = 0;
     var balls = [];
+    var bordersLeft = [];
+    var bordersRight = [];
+    var bordersTop = [];
+    var bordersBottom = [];
 
-    document.addEventListener('mousemove', onDocumentMouseMove, true);
-    document.addEventListener('keydown', onKeyDown, true);
-    document.addEventListener('keyup', onKeyUp, true);
+    document.addEventListener('mousemove', OnDocumentMouseMove, true);
+    document.addEventListener('keydown', OnKeyDown, true);
+    document.addEventListener('keyup', OnKeyUp, true);
 
-    init(); //create objects e.g.
-    render();
+    var gameController = new GameController();
+    Init(); //create objects e.g.
+    Render();
 
-    function updateScoreboard() {
+    function Render() {
+        frameDeltaTime = clock.getDelta();
+        controls.update();
+
+        SetCamera();
+        if (BallsRoll()) {
+            CalcPhysics(frameDeltaTime);
+        }
+
+        UpdateScoreboard();
+        gameController.Update();
+
+        renderer.render(scene, camera);
+        requestAnimationFrame(Render);
+    }
+
+    function UpdateScoreboard(){
         document.getElementById("shotspeed").innerHTML = "HitPower: " + shotspeed;
         document.getElementById("points").innerHTML = pointsScored;
         document.getElementById("shotsfired").innerHTML = shotsFired;
         document.getElementById("ballshit").innerHTML = ballsHit;
         document.getElementById("connect").innerHTML = ballConnect;
-
     }
-
-    function render() {
-        frameDeltaTime = clock.getDelta();
-        controls.update();
-
-        setCamera();
-        if (ballsRoll()) {
-            calcPhysics(frameDeltaTime);
-        }
-        updateScoreboard();
-        renderer.render(scene, camera);
-        requestAnimationFrame(render);
-    }
-
-    function calcPhysics(clockDeltaTime) {
+    function CalcPhysics(clockDeltaTime) {
         //for each ball
         for (i = 0; i < balls.length; i++) {
             //for each other ball
@@ -108,6 +118,7 @@
 
                 if (distance < 1 + 1) {
                     ballConnect += 1;
+                    gameController.GetCurrentTurn().BallHit(ballSender, ballReceiver);
                     var vectorNormal = GetVectorNormal(differenceVector, distance);
                     var vectorVelocityDelta = GetObjectVelocityDelta(ballSender, ballReceiver);
                     var dotProduct = GetDotProduct(vectorVelocityDelta, vectorNormal);
@@ -116,8 +127,8 @@
                         var impulseStrength = (1 + coefficient) * dotProduct;
                         var impulseVector = GetImpulseVector(impulseStrength, vectorNormal);
 
-                        ballSender.direction = updateDirection(ballSender.direction, impulseVector, true);
-                        ballReceiver.direction = updateDirection(ballReceiver.direction, impulseVector, false);
+                        ballSender.direction = UpdateDirection(ballSender.direction, impulseVector, true);
+                        ballReceiver.direction = UpdateDirection(ballReceiver.direction, impulseVector, false);
 
                         //var iBallSpeed = balls[i].ball.speed;
                         //var xBallSpeed = balls[x].ball.speed;
@@ -128,66 +139,80 @@
             }
         }
 
+
         //Update ball positions and speed
         for (i = 0; i < balls.length; i++) {
             if (balls[i].ball.speed > 0) {
-                balls[i].ball.position = calculatePos(balls[i], clockDeltaTime);
-                balls[i].ball.speed = calculateSpeed(balls[i].ball.speed);
-                outOfBounds(balls[i]);
+                balls[i].ball.position = CalculatePos(balls[i], clockDeltaTime);
+                balls[i].ball.speed = CalculateSpeed(balls[i].ball.speed);
+                OutOfBounds(balls[i]);
             }
         }
     }
 
-    function calculateSpeed(speed) {
+    function RegisterBallHit(){
+        //if
+    }
+
+    function CalculateSpeed(speed) {
         if (speed > 0) {
             return speed -= 0.1;
         }
         else { return 0; }
     }
 
-    function outOfBounds(ball) {
-        if (ball.ball.position.z > 40.6) { //down : push up
-            ball.direction.z = -1; //up
-            ball.ball.position.z = 40.6
-            ball.ball.speed *= 0.75;
-        }
-        if (ball.ball.position.z < -41.1) { //up : push down
-            ball.direction.z = 1; //left
-            ball.ball.position.z = -41.1
-            ball.ball.speed *= 0.75;
-        }
-        if (ball.ball.position.x > 22) { //right : push left
-            ball.direction.x = -1; //down
-            ball.ball.position.x = 22
-            ball.ball.speed *= 0.75;
-        }
-        if (ball.ball.position.x < -22) { //left : push right
-            ball.direction.x = 1; //right
-            ball.ball.position.x = -22
-            ball.ball.speed *= 0.75;
-        }
-    }
+    function OutOfBounds(ball){
+        //Check if the ball is near any border
+        if (ball.ball.position.z < 40.6 && ball.ball.position.z > -41.1 && ball.ball.position.x < 22 && ball.ball.position.x > -22)
+            return; //if not, return
 
-    function shootBall() {
-        if (!ballsRoll()) {
-            whiteball.ball.speed = shotspeed;
-            whiteball.direction = camera.getWorldDirection();
-            shotsFired += 1;
-            shotspeed = 0;
-        }
-    }
+        console.log("hi");
+        //Left border
+        if (ball.ball.position.x < -22){
+            if ((ball.ball.position.z > 0.8 && ball.ball.position.z < 40.2) || (ball.ball.position.z > -40.7 && ball.ball.position.z < -1.7)){
+                ball.direction.x = 1; //right
+                ball.ball.speed *= 0.75;
 
-    function ballsRoll() {
-        for (i = 0; i < balls.length; i++) {
-            if (balls[i].ball.speed > 0) {
-                return true;
+                return;
             }
         }
-        return false;
+        //Right border
+        if (ball.ball.position.x > 22){
+            if ((ball.ball.position.z > 0.8 && ball.ball.position.z < 40.2) || (ball.ball.position.z > -40.7 && ball.ball.position.z < -1.7)){
+                ball.direction.x = -1; //left
+                ball.ball.speed *= 0.75;
+
+                return;
+            }
+        }
+
+        //Top border
+        if (ball.ball.position.z < -41.1){
+            if (ball.ball.position.x > -21.75 && ball.ball.position.x < 21.35){
+                ball.direction.z = 1; //down
+                ball.ball.speed *= 0.75;
+
+                return;
+            }
+        }
+
+        //Bottom border
+        if (ball.ball.position.z > 40.6){
+            if (ball.ball.position.x > -21.75 && ball.ball.position.x < 21.35){
+                ball.direction.z = -1; //up
+                ball.ball.speed *= 0.75;
+
+                return;
+            }
+        }
+
+        //Ball potted
+        scene.remove(ball.ball);
+        console.log("score!");
     }
 
-    function setCamera() {
-        if (ballsRoll()) {
+    function SetCamera() {
+        if (BallsRoll()) {
             cue.position.z = 100;
             controls.target = new THREE.Vector3(0,13,0);
         }
@@ -195,6 +220,24 @@
             cue.position.z = 0.1;
             controls.target = whiteball.ball.position;
         }
+    }
+
+    function ShootBall() {
+        if (!BallsRoll()) {
+            whiteball.ball.speed = shotspeed;
+            whiteball.direction = camera.getWorldDirection();
+            shotsFired += 1;
+            shotspeed = 0;
+        }
+    }
+
+    function BallsRoll() {
+        for (i = 0; i < balls.length; i++) {
+            if (balls[i].ball.speed > 0) {
+                return true;
+            }
+        }
+        return false;
     }
 	</script>
     

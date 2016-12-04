@@ -2,9 +2,9 @@
  * Created by Robert on 1-12-2016.
  */
 
-function onKeyDown(event) {
+function OnKeyDown(event) {
     event.preventDefault();
-    if (ballsRoll())
+    if (BallsRoll())
         return;
 
     switch (event.keyCode) {
@@ -39,19 +39,19 @@ function onKeyDown(event) {
     }
 }
 
-function onKeyUp(event) {
+function OnKeyUp(event) {
     event.preventDefault();
-    if (ballsRoll())
+    if (BallsRoll())
         return;
 
     switch (event.keyCode) {
         case 32:
-            shootBall();
+            ShootBall();
             break;
     }
 }
 
-function onDocumentMouseMove(event) {
+function OnDocumentMouseMove(event) {
     event.preventDefault();
 
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
