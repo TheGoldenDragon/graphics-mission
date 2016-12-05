@@ -188,7 +188,7 @@
 
         //Top border
         if (ball.ball.position.z < -41.1){
-            if (ball.ball.position.x > -21.75 && ball.ball.position.x < 21.35){
+            if (ball.ball.position.x > -21.2 && ball.ball.position.x < 20.8){
                 ball.direction.z = 1; //down
                 ball.ball.speed *= 0.75;
 
@@ -198,7 +198,7 @@
 
         //Bottom border
         if (ball.ball.position.z > 40.6){
-            if (ball.ball.position.x > -21.75 && ball.ball.position.x < 21.35){
+            if (ball.ball.position.x > -21.2 && ball.ball.position.x < 20.8){
                 ball.direction.z = -1; //up
                 ball.ball.speed *= 0.75;
 
@@ -207,6 +207,7 @@
         }
 
         //Ball potted
+        gameController.GetCurrentTurn().BallPotted(ball);
         scene.remove(ball.ball);
         console.log("score!");
     }
