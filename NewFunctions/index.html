@@ -52,7 +52,7 @@
 <script>
     if (!Detector.webgl) Detector.addGetWebGLMessage();
 
-    var camera, controls, scene, renderer, whiteball, clock, cue;
+    var camera, controls, scene, renderer, clock, cue;
     var shotsFired = 0;
     var ballConnect = 0;
     var pointsScored = 0;
@@ -62,10 +62,6 @@
 
     var shotspeed = 0;
     var balls = [];
-    var bordersLeft = [];
-    var bordersRight = [];
-    var bordersTop = [];
-    var bordersBottom = [];
 
     document.addEventListener('mousemove', OnDocumentMouseMove, true);
     document.addEventListener('keydown', OnKeyDown, true);
@@ -145,6 +141,8 @@
             if (balls[i].ball.speed > 0) {
                 balls[i].ball.position = CalculatePos(balls[i], clockDeltaTime);
                 balls[i].ball.speed = CalculateSpeed(balls[i].ball.speed);
+                if (balls[i].ball.speed == 0)
+                    balls[i].direction = new THREE.Vector3(0,0,0);
                 OutOfBounds(balls[i]);
             }
         }
@@ -208,8 +206,8 @@
 
         //Ball potted
         gameController.GetCurrentTurn().BallPotted(ball);
+        ball.ball.speed = 0;
         scene.remove(ball.ball);
-        console.log("score!");
     }
 
     function SetCamera() {

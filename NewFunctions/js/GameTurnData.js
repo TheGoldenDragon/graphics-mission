@@ -36,8 +36,10 @@ GameTurnData.prototype.BallHit = function (sender, receiver){
 }
 
 GameTurnData.prototype.BallPotted = function (ball){
-    var info = { ball: ball.name}
+    var info = { name: ball.name}
     ballsPotted.push(info);
+    console.log(info);
+    console.log(ballsPotted);
 }
 
 GameTurnData.prototype.AsignBallGroup = function(ballHit){
@@ -55,5 +57,6 @@ GameTurnData.prototype.GetBallsPotted = function(){
 GameTurnData.prototype.printData = function(){
     console.log(this);
     console.log(ballsCollided);
+    console.log(ballsPotted);
 
 }
