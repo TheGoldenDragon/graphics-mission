@@ -130,7 +130,7 @@
                         //var iBallSpeed = balls[i].ball.speed;
                         //var xBallSpeed = balls[x].ball.speed;
                         ballReceiver.ball.speed = ballSender.ball.speed;
-                        ballSender.ball.speed = ballSender.ball.speed / 2;
+                        ballSender.ball.speed = ballSender.ball.speed / 1.5;
                     }
                 }
             }
@@ -141,75 +141,12 @@
         for (i = 0; i < balls.length; i++) {
             if (balls[i].ball.speed > 0) {
                 balls[i].ball.position = CalculatePos(balls[i], clockDeltaTime);
-                balls[i].ball.speed = CalculateSpeed(balls[i].ball.speed);
-                if (balls[i].ball.speed <= 0)
-                    balls[i].direction = new THREE.Vector3(0,0,0);
-                OutOfBounds(balls[i]);
+                balls[i].CalculateSpeed();
+                balls[i].OutOfBounds();
             }
         }
     }
 
-    function RegisterBallHit(){
-        //if
-    }
-
-    function CalculateSpeed(speed) {
-        if (speed > 0) {
-            return speed -= 0.1;
-        }
-        else { return 0; }
-    }
-
-    function OutOfBounds(ball){
-        //Check if the ball is near any border
-        if (ball.ball.position.z < 40.6 && ball.ball.position.z > -41.1 && ball.ball.position.x < 22 && ball.ball.position.x > -22)
-            return; //if not, return
-
-        console.log("hi");
-        //Left border
-        if (ball.ball.position.x < -22){
-            if ((ball.ball.position.z > 0.8 && ball.ball.position.z < 40.2) || (ball.ball.position.z > -40.7 && ball.ball.position.z < -1.7)){
-                ball.direction.x = 1; //right
-                ball.ball.speed *= 0.75;
-
-                return;
-            }
-        }
-        //Right border
-        if (ball.ball.position.x > 22){
-            if ((ball.ball.position.z > 0.8 && ball.ball.position.z < 40.2) || (ball.ball.position.z > -40.7 && ball.ball.position.z < -1.7)){
-                ball.direction.x = -1; //left
-                ball.ball.speed *= 0.75;
-
-                return;
-            }
-        }
-
-        //Top border
-        if (ball.ball.position.z < -41.1){
-            if (ball.ball.position.x > -21.2 && ball.ball.position.x < 20.8){
-                ball.direction.z = 1; //down
-                ball.ball.speed *= 0.75;
-
-                return;
-            }
-        }
-
-        //Bottom border
-        if (ball.ball.position.z > 40.6){
-            if (ball.ball.position.x > -21.2 && ball.ball.position.x < 20.8){
-                ball.direction.z = -1; //up
-                ball.ball.speed *= 0.75;
-
-                return;
-            }
-        }
-
-        //Ball potted
-        gameController.GetCurrentTurn().BallPotted(ball);
-        ball.ball.speed = 0;
-        //scene.remove(ball.ball);
-    }
 
     function SetCamera() {
         if (BallsRoll()) {

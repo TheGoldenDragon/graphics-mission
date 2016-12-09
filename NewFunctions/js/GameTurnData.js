@@ -4,12 +4,14 @@
 
 var turnNumber;
 var currentPlayer;
-var ballsCollided = [];
-var ballsPotted = [];
+var ballsCollided;
+var ballsPotted;
 
 function GameTurnData(){
     this.turnNumber = gameController.currentTurnNumber;
     this.currentPlayer = gameController.currentPlayer;
+    ballsCollided = [];
+    ballsPotted = [];
 
     console.log("new");
 
@@ -28,8 +30,6 @@ function GameTurnData(){
 
 }
 
-
-
 GameTurnData.prototype.BallHit = function (sender, receiver){
     var info = { sender: sender.name, receiver: receiver.name}
     ballsCollided.push(info);
@@ -37,11 +37,6 @@ GameTurnData.prototype.BallHit = function (sender, receiver){
 
 GameTurnData.prototype.BallPotted = function (ball){
     ballsPotted.push(ball);
-    console.log(ballsPotted);
-}
-
-GameTurnData.prototype.AsignBallGroup = function(ballHit){
-
 }
 
 GameTurnData.prototype.GetBallsCollided = function(){

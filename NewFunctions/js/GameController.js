@@ -11,31 +11,10 @@ var currentTurnNumber;
 var ballsScored = [];
 var turnHistoryData = [];
 
-var stripedBallTargets = [
-    {value: 1, name: "ball1", potted: "no"},
-    {value: 2, name: "ball2", potted: "no"},
-    {value: 3, name: "ball3", potted: "no"},
-    {value: 4, name: "ball4", potted: "no"},
-    {value: 5, name: "ball5", potted: "no"},
-    {value: 6, name: "ball6", potted: "no"},
-    {value: 7, name: "ball7", potted: "no"}
-];
-
-var solidBallTargets = [
-    {value: 9, name: "ball9", potted: "no"},
-    {value: 10, name: "ball10", potted: "no"},
-    {value: 11, name: "ball11", potted: "no"},
-    {value: 12, name: "ball12", potted: "no"},
-    {value: 13, name: "ball13", potted: "no"},
-    {value: 14, name: "ball14", potted: "no"},
-    {value: 15, name: "ball15", potted: "no"}
-];
-
 function GameController(){
     this.simulationRunning = false;
     this.currentTurnNumber = 1;
     this.currentPlayer = 1;
-
 
     //1 of meer ballen met breakshot erin, speler 1 mag kiezen
     //anders mag speler 2 kiezen
@@ -127,32 +106,14 @@ GameController.prototype.TurnEndHandler = function(){
 }
 
 GameController.prototype.DeactivatePottedBalls = function (turn){
-    console.log(turn)
     var tempBallsPotted = turn.GetBallsPotted();
-    console.log(tempBallsPotted);
-    for(i = 0; i < tempBallsPotted.length; i++) {
-        console.log(tempBallsPotted[i].name);
+    for(var i = 0; i < tempBallsPotted.length; i++) {
         if (tempBallsPotted[i].name == "whiteball"){
             tempBallsPotted[i].ball.position = new THREE.Vector3(0,0,0);//tempBallsPotted[i].defaultPos;
             continue;
         }
 
-        for (n = 0; n < solidBallTargets.length; n++) {
-            if (tempBallsPotted[i].name == solidBallTargets[n].name){
-                solidBallTargets[n].potted = "yes";
-                console.log(tempBallsPotted[i].potted);
-            }
-            console.log(tempBallsPotted[i].name + " " + solidBallTargets[n].name);
-        }
-
-        for (n = 0; n < stripedBallTargets.length; n++) {
-            if (tempBallsPotted[i].name == stripedBallTargets[n].name){
-                stripedBallTargets[n].potted = "yes";
-                console.log(tempBallsPotted[i].potted);
-            }
-            console.log(tempBallsPotted[i].name + " " + solidBallTargets[n].name);
-
-        }
+        tempBallsPotted[i].isPotted = true;
     }
 
 }
@@ -163,13 +124,11 @@ GameController.prototype.GetCurrentTurn = function(){
 
 GameController.prototype.NextPlayerTurn = function (){
     this.currentPlayer = this.currentPlayer == 1 ? 2 : 1;
-    console.log(this.currentPlayer);
 }
 
 
 GameController.prototype.AsignBallGroup = function(turn){
     var ballsPotted = turn.GetBallsPotted();
-    console.log(ballsPotted);
     if (turn.currentPlayer == 1){
         players[0].ballGroup = ballsPotted[0].ballGroup;
         players[1].ballGroup = players[0].ballGroup == "striped" ? "solid" : "striped";
