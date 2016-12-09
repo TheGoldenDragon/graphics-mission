@@ -36,9 +36,7 @@ GameTurnData.prototype.BallHit = function (sender, receiver){
 }
 
 GameTurnData.prototype.BallPotted = function (ball){
-    var info = { name: ball.name}
-    ballsPotted.push(info);
-    console.log(info);
+    ballsPotted.push(ball);
     console.log(ballsPotted);
 }
 

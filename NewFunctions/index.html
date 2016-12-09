@@ -16,6 +16,7 @@
 <script src="js/Controls.js"></script>
 <script src="js/GameController.js"></script>
 <script src="js/GameTurnData.js"></script>
+<script src="js/Ball.js"></script>
 
 <div class="scoreboard">
 	<h2>Scoreboard (statistieken)</h2>
@@ -141,7 +142,7 @@
             if (balls[i].ball.speed > 0) {
                 balls[i].ball.position = CalculatePos(balls[i], clockDeltaTime);
                 balls[i].ball.speed = CalculateSpeed(balls[i].ball.speed);
-                if (balls[i].ball.speed == 0)
+                if (balls[i].ball.speed <= 0)
                     balls[i].direction = new THREE.Vector3(0,0,0);
                 OutOfBounds(balls[i]);
             }
@@ -207,7 +208,7 @@
         //Ball potted
         gameController.GetCurrentTurn().BallPotted(ball);
         ball.ball.speed = 0;
-        scene.remove(ball.ball);
+        //scene.remove(ball.ball);
     }
 
     function SetCamera() {

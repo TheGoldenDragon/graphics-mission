@@ -14,22 +14,6 @@ function addModelToScene(geometry, materials) {
     scene.add(model);
 }
 
-function Ball(name, texture, position) // Constructor
-{
-    this.ball = new THREE.Mesh(new THREE.SphereGeometry(1, 20, 20));
-    this.ball.material = texture;
-    this.ball.position.x = position.x;
-    this.ball.position.y = position.y;
-    this.ball.position.z = position.z;
-    this.direction = new THREE.Vector3(0, 0, 0);
-    this.name = name;
-    this.ball.speed = 0;
-    this.ball.rotation.y = -1.5;
-    this.ball.castShadow = true;
-    scene.add(this.ball);
-    return this;
-}
-
 function Init() {
 
     scene = new THREE.Scene();
@@ -81,33 +65,33 @@ function Init() {
 
     //Balls
     //White ball
-    whiteball = new Ball("whiteball", new THREE.MeshPhongMaterial({ color: 0xffffee }), new THREE.Vector3(0, 2, 20));
+    whiteball = new Ball("whiteball", "whiteball", new THREE.MeshPhongMaterial({ color: 0xffffee }), new THREE.Vector3(0, 2, 20));
 
     //Colored Balls
     //First row
-    ball1 = new Ball("ball1", new THREE.MeshPhongMaterial({ map: textureball1 }), new THREE.Vector3(0, 2, -18));
+    ball1 = new Ball("ball1", "solid", new THREE.MeshPhongMaterial({ map: textureball1 }), new THREE.Vector3(0, 2, -18));
 
     //Second row
-    ball13 = new Ball("ball13", new THREE.MeshPhongMaterial({ map: textureball13 }), new THREE.Vector3(-1.1, 2, -20));
-    ball7 = new Ball("ball7", new THREE.MeshPhongMaterial({ map: textureball7 }), new THREE.Vector3(1.1, 2, -20));
+    ball13 = new Ball("ball13", "striped", new THREE.MeshPhongMaterial({ map: textureball13 }), new THREE.Vector3(-1.1, 2, -20));
+    ball7 = new Ball("ball7", "solid", new THREE.MeshPhongMaterial({ map: textureball7 }), new THREE.Vector3(1.1, 2, -20));
 
     //Third row
-    ball2 = new Ball("ball2", new THREE.MeshPhongMaterial({ map: textureball2 }), new THREE.Vector3(-2.1, 2, -22));
-    ball8 = new Ball("blackball", new THREE.MeshPhongMaterial({ map: textureball8 }), new THREE.Vector3(0, 2, -22));
-    ball14 = new Ball("ball14", new THREE.MeshPhongMaterial({ map: textureball14 }), new THREE.Vector3(2.1, 2, -22));
+    ball2 = new Ball("ball2", "solid", new THREE.MeshPhongMaterial({ map: textureball2 }), new THREE.Vector3(-2.1, 2, -22));
+    ball8 = new Ball("blackball", "blackball", new THREE.MeshPhongMaterial({ map: textureball8 }), new THREE.Vector3(0, 2, -22));
+    ball14 = new Ball("ball14", "striped", new THREE.MeshPhongMaterial({ map: textureball14 }), new THREE.Vector3(2.1, 2, -22));
 
     //Fourth row
-    ball15 = new Ball("ball15", new THREE.MeshPhongMaterial({ map: textureball15 }), new THREE.Vector3(-3.2, 2, -24));
-    ball4 = new Ball("ball4", new THREE.MeshPhongMaterial({ map: textureball4 }), new THREE.Vector3(-1, 2, -24));
-    ball9 = new Ball("ball9", new THREE.MeshPhongMaterial({ map: textureball9 }), new THREE.Vector3(1, 2, -24));
-    ball6 = new Ball("ball6", new THREE.MeshPhongMaterial({ map: textureball6 }), new THREE.Vector3(3.2, 2, -24));
+    ball15 = new Ball("ball15", "striped", new THREE.MeshPhongMaterial({ map: textureball15 }), new THREE.Vector3(-3.2, 2, -24));
+    ball4 = new Ball("ball4", "solid", new THREE.MeshPhongMaterial({ map: textureball4 }), new THREE.Vector3(-1, 2, -24));
+    ball9 = new Ball("ball9", "striped", new THREE.MeshPhongMaterial({ map: textureball9 }), new THREE.Vector3(1, 2, -24));
+    ball6 = new Ball("ball6", "solid", new THREE.MeshPhongMaterial({ map: textureball6 }), new THREE.Vector3(3.2, 2, -24));
 
     //Fifth row
-    ball11 = new Ball("ball11", new THREE.MeshPhongMaterial({ map: textureball11 }), new THREE.Vector3(-4.3, 2, -26));
-    ball3 = new Ball("ball3", new THREE.MeshPhongMaterial({ map: textureball3 }), new THREE.Vector3(-2.1, 2, -26));
-    ball12 = new Ball("ball12", new THREE.MeshPhongMaterial({ map: textureball12 }), new THREE.Vector3(0, 2, -26));
-    ball5 = new Ball("ball5", new THREE.MeshPhongMaterial({ map: textureball5 }), new THREE.Vector3(2.1, 2, -26));
-    ball10 = new Ball("ball10", new THREE.MeshPhongMaterial({ map: textureball10 }), new THREE.Vector3(4.3, 2, -26));
+    ball11 = new Ball("ball11", "striped", new THREE.MeshPhongMaterial({ map: textureball11 }), new THREE.Vector3(-4.3, 2, -26));
+    ball3 = new Ball("ball3", "solid", new THREE.MeshPhongMaterial({ map: textureball3 }), new THREE.Vector3(-2.1, 2, -26));
+    ball12 = new Ball("ball12", "striped", new THREE.MeshPhongMaterial({ map: textureball12 }), new THREE.Vector3(0, 2, -26));
+    ball5 = new Ball("ball5", "solid", new THREE.MeshPhongMaterial({ map: textureball5 }), new THREE.Vector3(2.1, 2, -26));
+    ball10 = new Ball("ball10", "striped", new THREE.MeshPhongMaterial({ map: textureball10 }), new THREE.Vector3(4.3, 2, -26));
 
     //Add balls to ballsArray;
     balls.push(whiteball);
