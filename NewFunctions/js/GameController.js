@@ -34,9 +34,18 @@ function GameController(){
 }
 
 GameController.prototype.Update = function (){
-    document.getElementById("currentplayer").innerHTML = "Player: " + this.currentPlayer;
-    document.getElementById("currentturn").innerHTML = "Turn: " + this.currentTurnNumber;
-    document.getElementById("currentplayertarget").innerHTML = this.currentPlayer == 1 ? "Target: " + players[0].ballGroup : "Target: " + players[1].ballGroup;
+    if(this.currentPlayer != 1) {
+        document.getElementById('arrow-right').style.borderRightColor = 'yellow';
+        document.getElementById('arrow-left').style.borderLeftColor = 'black';
+    }
+    else if(this.currentPlayer == 1){
+        document.getElementById('arrow-right').style.borderRightColor = 'black';
+        document.getElementById('arrow-left').style.borderLeftColor = 'yellow';
+    }
+
+   // document.getElementById("currentplayer").innerHTML = "Player: " + this.currentPlayer;
+    document.getElementById("currentturn").innerHTML = "" + this.currentTurnNumber;
+   // document.getElementById("currentplayertarget").innerHTML = this.currentPlayer == 1 ? "Target: " + players[0].ballGroup : "Target: " + players[1].ballGroup;
 
     if (turnHistoryData.length == 0)
         turnHistoryData.push(new GameTurnData());
@@ -125,7 +134,6 @@ GameController.prototype.GetCurrentTurn = function(){
 GameController.prototype.NextPlayerTurn = function (){
     this.currentPlayer = this.currentPlayer == 1 ? 2 : 1;
 }
-
 
 GameController.prototype.AsignBallGroup = function(turn){
     var ballsPotted = turn.GetBallsPotted();

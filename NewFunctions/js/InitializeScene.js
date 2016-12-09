@@ -57,7 +57,7 @@ function Init() {
     var textureball15 = loader.load('textures/15.jpg');
 
     //cue
-    var cueGeometry = new THREE.CylinderGeometry(0.1, 0.4, 30);
+    var cueGeometry = new THREE.CylinderGeometry(0.02, 0.4, 20);
     var cueColor = new THREE.MeshPhongMaterial({ color: 0xb88b45 });
     cue = new THREE.Mesh(cueGeometry, cueColor);
     cue.castShadow = true;
@@ -113,7 +113,7 @@ function Init() {
 
 
     camera.add(cue);
-    cue.position.set(1.7, -0.4, -20);
+    cue.position.set(1.1, -0.3, -4);
     cue.rotation.x = -1.55;
     cue.rotation.y = 0;
     cue.rotation.z = 0.1;
@@ -191,8 +191,7 @@ function Init() {
     //Camera positioning
     camera.position.y = 20;
     camera.position.x = 0;
-    camera.position.z = 70;
-    //camera.lookAt(whiteball.position);
+    camera.position.z = 200;
     scene.add(camera);
 
     //Camera controls
@@ -201,6 +200,8 @@ function Init() {
     controls.enableDamping = true;
     controls.dampingFactor = 0.25;
     controls.enableZoom = true;
+    controls.minDistance = 30;
+    controls.maxDistance = 30;
     controls.target = new THREE.Vector3(0,whiteball.ball.position.y,0);
 
     /* Uncomment to show the collision borders

@@ -18,36 +18,90 @@
 <script src="js/GameTurnData.js"></script>
 <script src="js/Ball.js"></script>
 
-<div class="scoreboard">
-	<h2>Scoreboard (statistieken)</h2>
-	<div class="inner">
-    	<div class="scores">
-            Aantal punten:<br>
-            <p id="points">0</p>
-        Aantal keren geschoten:<br>
-        <p id="shotsfired">0</p>
-        Aantal geraakte ballen met de witte bal:<br>
-        <p id="ballshit"> 0</p>
-        
-        Aantal connecties tussen ballen:<br>
-         <p id="connect"> 0</p>
-         
-          Extra informatie (debug):<br>
-         <p id="debug"></p>
+<div class="logo"></div>
+<div class="main">
+    <canvas id="gameCanvas"></canvas>
+    <div id="speedborder"></div>
+    <div id="speedmeter"></div>
+    <div id="balls">
+        <div class="balls1">
+            <div class="solid"></div>
+        </div>
+        <div class="balls1">
+            <div class="solid"></div>
+        </div>
+        <div class="balls1">
+            <div class="solid"></div>
+        </div>
+        <div class="balls1">
+            <div class="solid"></div>
+        </div>
+        <div class="balls1">
+            <div class="solid"></div>
+        </div>
+        <div class="balls1">
+            <div class="solid"></div>
+        </div>
+        <div class="balls1">
+            <div class="solid"></div>
+        </div>
+        <div class="balls1">
+            <div class="solid"></div>
+        </div>
+
+        <div class="balls2">
+            <div class="striped-bg"></div>
+            <div class="striped"></div>
+        </div>
+
+    </div>
+    <div id="scoreboard">
+        <div id="arrow-left"></div>
+        <div id="player1">
+            <p>Player 1</p>
+        </div>
+        <div id="score1">
+            <p id="scoreplayer1">0</p>
+        </div>
+
+        <div id="turn">
+            <p>Turn</p>
+            <p id="currentturn">0</p>
+        </div>
+
+        <div id="arrow-right"></div>
+        <div id="player2">
+            <p>Player 2</p>
+        </div>
+        <div id="score2">
+            <p id="scoreplayer2">0</p>
         </div>
     </div>
-</div>
-<div class="main">
-    <div class="logo"></div>
-    <div id="gameContainer">
-        <canvas id="gameCanvas"></canvas>
-        <div id="overlay" style="background-color:#128000; width: 100px; height: 50px; padding-left:12px; margin:10px;">
+
+        <!--<div id="player1" style="background-color:#128000; width: 100px; height: 50px; padding-left:12px; margin:10px;">
+            <p id="shotspeed1">0</p>
+            <p id="currentplayer"></p>
+            <p id="currentturn"></p>
+            <p id="currentplayertarget"></p>
+        </div>
+        <div id="player2" style="background-color:#128000; width: 100px; height: 50px; padding-left:12px; margin:10px;">
             <p id="shotspeed">0</p>
             <p id="currentplayer"></p>
             <p id="currentturn"></p>
             <p id="currentplayertarget"></p>
         </div>
-    </div>
+        <div id="currentplayer" style="background-color:#128000; width: 100px; height: 50px; padding-left:12px; margin:10px;">
+
+            <p id="currentplayer"></p>
+        </div>
+        <div id="speed" style="background-color:#128000; width: 100px; height: 50px; padding-left:12px; margin:10px;">
+            <p id="shotspeed">0</p>
+            <p id="currentplayer"></p>
+            <p id="currentturn"></p>
+            <p id="currentplayertarget"></p>
+        </div>
+        !-->
+
 </div>
 
 <script>
@@ -81,7 +135,7 @@
             CalcPhysics(frameDeltaTime);
         }
 
-        UpdateScoreboard();
+        //UpdateScoreboard();
         gameController.Update();
 
         renderer.render(scene, camera);
@@ -150,11 +204,16 @@
 
     function SetCamera() {
         if (BallsRoll()) {
-            cue.position.z = 100;
-            controls.target = new THREE.Vector3(0,13,0);
+            cue.visible = false;
+            controls.enableRotate = false;
+            camera.position.y = 50;
+            camera.position.x = 10;
+            camera.position.z = 0;
+            controls.target = new THREE.Vector3(5,13,0);
         }
         else {
-            cue.position.z = 0.1;
+            cue.visible = true;
+            controls.enableRotate = true;
             controls.target = whiteball.ball.position;
         }
     }

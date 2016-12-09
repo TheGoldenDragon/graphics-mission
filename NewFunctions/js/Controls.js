@@ -11,6 +11,8 @@ function OnKeyDown(event) {
         case 32:
             if (shotspeed >= 60) { break };
             shotspeed += 1;
+            cue.position.z += 0.22;
+            document.getElementById('speedmeter').style.width = shotspeed * 5 + 'px';
             break;
         case 37:
             whiteball.direction.x = -1; //down
@@ -47,6 +49,8 @@ function OnKeyUp(event) {
     switch (event.keyCode) {
         case 32:
             ShootBall();
+            document.getElementById('speedmeter').style.width = '0px';
+            cue.position.z = -4;
             break;
     }
 }
