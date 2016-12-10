@@ -115,7 +115,7 @@ GameController.prototype.TurnEndHandler = function(){
             //if the player potted 1 or more balls
             if (thisTurn.GetBallsPotted().length > 0){
                 this.AsignBallGroup(thisTurn); // asign the player to the group of the first potted ball (striped or solid)
-                this.DeactivatePottedBalls();
+                this.DeactivatePottedBalls(thisTurn);
             }
             else{
                 this.NextPlayerTurn();
@@ -145,6 +145,7 @@ GameController.prototype.TurnEndHandler = function(){
 }
 
 GameController.prototype.DeactivatePottedBalls = function (turn){
+
     var tempBallsPotted = turn.GetBallsPotted();
     for(var i = 0; i < tempBallsPotted.length; i++) {
         if (tempBallsPotted[i].name == "whiteball"){
