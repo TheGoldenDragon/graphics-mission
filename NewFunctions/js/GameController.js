@@ -138,7 +138,6 @@ GameController.prototype.TurnEndHandler = function(){
         }
     }
 
-
     this.currentTurnNumber++;
     turnHistoryData.push(new GameTurnData()); //Create a new object to register turn data
 }
@@ -148,7 +147,7 @@ GameController.prototype.DeactivatePottedBalls = function (turn){
     var tempBallsPotted = turn.GetBallsPotted();
     for(var i = 0; i < tempBallsPotted.length; i++) {
         if (tempBallsPotted[i].name == "whiteball"){
-            tempBallsPotted[i].ball.position = new THREE.Vector3(0,0,0);//tempBallsPotted[i].defaultPos;
+            tempBallsPotted[i].Reset();
             continue;
         }
 
@@ -162,21 +161,14 @@ GameController.prototype.DeactivatePottedBalls = function (turn){
                 this.PottedLeftStriped();
             }
         }
-        else if (tempBallsPotted[i].ballGroup == players[1].ballGroup){
-            if (tempBallsPotted[i].ballGroup == "solid"){
+        else if (tempBallsPotted[i].ballGroup == players[1].ballGroup) {
+            if (tempBallsPotted[i].ballGroup == "solid") {
                 this.PottedRightSolid();
             }
-            else{
+            else {
                 this.PottedRightStriped();
             }
         }
-        /*
-        if (turn.currentPlayer == 1){
-            PottedLeftSolid();
-        }
-        else{
-
-        }*/
     }
 
 }
@@ -199,8 +191,6 @@ GameController.prototype.AsignBallGroup = function(turn){
         players[1].ballGroup = ballsPotted[0].ballGroup;
         players[0].ballGroup = players[0].ballGroup == "striped" ? "solid" : "striped";
     }
-
-    //players[0].ballGroup = turn.currentPlayer == 1 ? turn.GetBallsPotted()[0].ballGroup : turn.GetBallsPotted()[1].ballGroup;
 }
 
 GameController.prototype.PottedLeftSolid = function (){
