@@ -5,10 +5,7 @@ body{
 	color:#fff;	
 	overflow:hidden;
 }
-#gameCanvas, #scoreboard,#speedmeter, #speedborder, #balls{
-	position: absolute;
-}
-#gameCanvas, #overlay{
+#gameCanvas, #scoreboard,#speedmeter, #speedborder, #pottedBalls{
 	position: absolute;
 }
 
@@ -175,7 +172,7 @@ h2 {
 	margin-left: 599px;
 	border: 1px solid #fff;
 }
-#balls{
+#pottedBalls{
 	padding-left:3px;
 	padding-right:3px;
 	padding-top:2px;
@@ -185,10 +182,10 @@ h2 {
 	margin-top: 876px;
 	margin-left: 400px;
 }
-.balls1{
+.pottedLeft{
 float:left;
 }
-.balls2{
+.pottedRight{
 float:right;
 }
 

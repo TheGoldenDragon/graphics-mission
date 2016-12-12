@@ -45,28 +45,27 @@ GameController.prototype.Update = function (){
 
     document.getElementById("currentturn").innerHTML = "" + this.currentTurnNumber;
 
-
-    /* //this is a test
-var bool = true;
+/*
+     //this is a test
     if(this.currentTurnNumber == 5) {
-        this.balls1solid();
-        this.balls2solid();
+        this.PottedRightStriped();
+        this.PottedRightSolid();
     }
     if(this.currentTurnNumber == 2) {
-        this.balls1striped();
-        this.balls2striped();
+        this.PottedLeftStriped();
+        this.PottedLeftSolid();
     }
 
-/*
-    /*
+
+
     If player 1 has solidballs this:
-            this.balls1solid();
+            this.PottedLeftSolid();
     if player 1 has stripedballs this:
-            this.balls1striped();
+            this.PottedLeftStriped();
      if player 2 has solidballs this:
-            this.balls2solid();
+            this.PottedRightSolid();
      if player 2 has stripedballs this:
-            this.balls2striped();
+            this.PottedRightStriped();
 
     When black ball has to be potted, use the opposite, so if player2 has all striped balls in and pots the black ball then use this.balls2solid();
     balls1 spawns left, meant for player1.
@@ -154,6 +153,30 @@ GameController.prototype.DeactivatePottedBalls = function (turn){
         }
 
         tempBallsPotted[i].isPotted = true;
+
+        if (tempBallsPotted[i].ballGroup == players[0].ballGroup){
+            if (tempBallsPotted[i].ballGroup == "solid"){
+                this.PottedLeftSolid();
+            }
+            else{
+                this.PottedLeftStriped();
+            }
+        }
+        else if (tempBallsPotted[i].ballGroup == players[1].ballGroup){
+            if (tempBallsPotted[i].ballGroup == "solid"){
+                this.PottedRightSolid();
+            }
+            else{
+                this.PottedRightStriped();
+            }
+        }
+        /*
+        if (turn.currentPlayer == 1){
+            PottedLeftSolid();
+        }
+        else{
+
+        }*/
     }
 
 }
@@ -180,44 +203,44 @@ GameController.prototype.AsignBallGroup = function(turn){
     //players[0].ballGroup = turn.currentPlayer == 1 ? turn.GetBallsPotted()[0].ballGroup : turn.GetBallsPotted()[1].ballGroup;
 }
 
-GameController.prototype.balls1solid = function (){
-    var balls1 = document.createElement('div');
-    balls1.className = 'balls1';
+GameController.prototype.PottedLeftSolid = function (){
+    var pottedLeft = document.createElement('div');
+    pottedLeft.className = 'pottedLeft';
     var solid = document.createElement('div');
     solid.className = 'solid';
-    balls1.appendChild(solid);
-    document.getElementById('balls').appendChild(balls1);
+    pottedLeft.appendChild(solid);
+    document.getElementById('pottedBalls').appendChild(pottedLeft);
 }
 
-GameController.prototype.balls1striped = function (){
-    var balls1 = document.createElement('div');
-    balls1.className = 'balls1';
+GameController.prototype.PottedLeftStriped = function (){
+    var pottedLeft = document.createElement('div');
+    pottedLeft.className = 'pottedLeft';
     var stripedbg = document.createElement('div');
     var striped = document.createElement('div');
     stripedbg.className = 'striped-bg';
     striped.className = 'striped';
-    balls1.appendChild(stripedbg);
-    balls1.appendChild(striped);
-    document.getElementById('balls').appendChild(balls1);
+    pottedLeft.appendChild(stripedbg);
+    pottedLeft.appendChild(striped);
+    document.getElementById('pottedBalls').appendChild(pottedLeft);
 }
 
-GameController.prototype.balls2solid = function (){
-    var balls2 = document.createElement('div');
-    balls2.className = 'balls2';
+GameController.prototype.PottedRightSolid = function (){
+    var pottedRight = document.createElement('div');
+    pottedRight.className = 'pottedRight';
     var solid = document.createElement('div');
     solid.className = 'solid';
-    balls2.appendChild(solid);
-    document.getElementById('balls').appendChild(balls2);
+    pottedRight.appendChild(solid);
+    document.getElementById('pottedBalls').appendChild(pottedRight);
 }
 
-GameController.prototype.balls2striped = function (){
-    var balls2 = document.createElement('div');
-    balls2.className = 'balls2';
+GameController.prototype.PottedRightStriped = function (){
+    var pottedRight = document.createElement('div');
+    pottedRight.className = 'pottedRight';
     var stripedbg = document.createElement('div');
     var striped = document.createElement('div');
     stripedbg.className = 'striped-bg';
     striped.className = 'striped';
-    balls2.appendChild(stripedbg);
-    balls2.appendChild(striped);
-    document.getElementById('balls').appendChild(balls2);
+    pottedRight.appendChild(stripedbg);
+    pottedRight.appendChild(striped);
+    document.getElementById('pottedBalls').appendChild(pottedRight);
 }
