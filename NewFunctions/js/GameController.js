@@ -152,7 +152,7 @@ GameController.prototype.CheckPottedBalls = function(){
     var tempBallsPotted = this.currentTurn.GetBallsPotted();
 
     if (players[0].ballGroup == "null" || players[1].ballGroup == "null")
-        this.AsignBallGroup();
+        this.AssignBallGroup();
 
     for(var i = 0; i < tempBallsPotted.length; i++) {
         if (tempBallsPotted[i].isPotted == true)
@@ -206,18 +206,23 @@ GameController.prototype.NextPlayerTurn = function (){
     }
 }
 
-GameController.prototype.AsignBallGroup = function(){
+GameController.prototype.AssignBallGroup = function(){
     var ballsPotted = this.currentTurn.GetBallsPotted();
 
-    //if the first ball is the whiteball or the blackball
+    //check if the first ball is the whiteball or the blackball
+    var i = 0;
+    for (i; i < ballsPotted.length; i++){
+        if (ballsPotted[i].name == "whiteball" || ballsPotted[i].name == "blackball")
+            continue;
 
-    if (this.currentTurn.currentPlayer == 1){
-        players[0].ballGroup = ballsPotted[0].ballGroup;
-        players[1].ballGroup = players[0].ballGroup == "striped" ? "solid" : "striped";
-    }
-    else{
-        players[1].ballGroup = ballsPotted[0].ballGroup;
-        players[0].ballGroup = players[0].ballGroup == "striped" ? "solid" : "striped";
+        if (this.currentTurn.currentPlayer == 1){
+            players[0].ballGroup = ballsPotted[i].ballGroup;
+            players[1].ballGroup = players[0].ballGroup == "striped" ? "solid" : "striped";
+        }
+        else{
+            players[1].ballGroup = ballsPotted[i].ballGroup;
+            players[0].ballGroup = players[1].ballGroup == "striped" ? "solid" : "striped";
+        }
     }
 }
 
