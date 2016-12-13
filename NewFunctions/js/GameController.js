@@ -15,6 +15,16 @@ function GameController(){
     this.simulationRunning = false;
     this.currentTurnNumber = 1;
     this.currentPlayer = 1;
+    this.currentTurn = null;
+
+    if(this.currentPlayer == 1) {
+        document.getElementById('arrow-right').style.borderRightColor = 'black';
+        document.getElementById('arrow-left').style.borderLeftColor = 'yellow';
+    }
+    else{
+        document.getElementById('arrow-right').style.borderRightColor = 'yellow';
+        document.getElementById('arrow-left').style.borderLeftColor = 'black';
+    }
 
     //1 of meer ballen met breakshot erin, speler 1 mag kiezen
     //anders mag speler 2 kiezen
@@ -34,30 +44,9 @@ function GameController(){
 }
 
 GameController.prototype.Update = function (){
-    if(this.currentPlayer != 1) {
-        document.getElementById('arrow-right').style.borderRightColor = 'yellow';
-        document.getElementById('arrow-left').style.borderLeftColor = 'black';
-    }
-    else if(this.currentPlayer == 1){
-        document.getElementById('arrow-right').style.borderRightColor = 'black';
-        document.getElementById('arrow-left').style.borderLeftColor = 'yellow';
-    }
 
     document.getElementById("currentturn").innerHTML = "" + this.currentTurnNumber;
-
 /*
-     //this is a test
-    if(this.currentTurnNumber == 5) {
-        this.PottedRightStriped();
-        this.PottedRightSolid();
-    }
-    if(this.currentTurnNumber == 2) {
-        this.PottedLeftStriped();
-        this.PottedLeftSolid();
-    }
-
-
-
     If player 1 has solidballs this:
             this.PottedLeftSolid();
     if player 1 has stripedballs this:
@@ -73,7 +62,6 @@ GameController.prototype.Update = function (){
 
       */
     // removed this for new implementations
-    // document.getElementById("currentplayer").innerHTML = "Player: " + this.currentPlayer;
     // document.getElementById("currentplayertarget").innerHTML = this.currentPlayer == 1 ? "Target: " + players[0].ballGroup : "Target: " + players[1].ballGroup;
 
     if (turnHistoryData.length == 0)
@@ -100,21 +88,25 @@ GameController.prototype.Update = function (){
 }
 
 GameController.prototype.TurnEndHandler = function(){
-    var thisTurn = this.GetCurrentTurn();
+    this.currentTurn = this.GetCurrentTurn();
+    var tempBallsPotted = this.currentTurn.GetBallsPotted();
+    var tempBallsCollided = this.currentTurn.GetBallsCollided();
+
+    //functions that only need to run once in this function
+    var createNewTurn = true; //If false at end of function, do not create a new turn
+    var checkPottedBalls = false; //If true at end of function, check all potted balls in the current turn
 
     //for the breakshot turn
-    if (thisTurn.turnNumber == 1){
+    if (this.currentTurn.turnNumber == 1){
         //if the player misses the breakshot
-        console.log(thisTurn.GetBallsCollided().length);
-        if (thisTurn.GetBallsCollided().length == 0){
+        if (tempBallsCollided.length == 0){
             whiteball.Reset();
-            return;
+            createNewTurn = false;
         }
         else{
             //if the player potted 1 or more balls
-            if (thisTurn.GetBallsPotted().length > 0){
-                this.AsignBallGroup(thisTurn); // asign the player to the group of the first potted ball (striped or solid)
-                this.DeactivatePottedBalls(thisTurn);
+            if (tempBallsPotted.length > 0){
+                checkPottedBalls = true;
             }
             else{
                 this.NextPlayerTurn();
@@ -123,36 +115,61 @@ GameController.prototype.TurnEndHandler = function(){
     }
     //for every turn after the breakshot
     else{
-        //if the player does not pot any balls switch to other player OR if the player hits the wrong ballgroup first OR if the player hits the blackball first
-        if (thisTurn.GetBallsPotted().length == 0){
+        //Check for possible fouls when hitting balls
+        if (tempBallsCollided.length > 0){
+            //If the player has a ball group assigned
+            if (players[this.currentPlayer - 1].ballGroup != "null"){
+                //if the player hits the black ball first
+                if (tempBallsCollided[0].receiver.name == "blackball")
+                    this.NextPlayerTurn();
+                //if the player hits the other ball group first (striped or solid)
+                if (tempBallsCollided[0].receiver.ballGroup != players[this.currentPlayer - 1].ballGroup){
+                    this.NextPlayerTurn();
+                }
+            }
+        }
+
+        //if the player does not pot any balls switch to other player
+        if (tempBallsPotted.length == 0){
             this.NextPlayerTurn();
         }
-        //if the table is still 'open', and the player potted a ball, asign the player to the group of the first potted ball (striped or solid)
-        else if (players[0].ballGroup == "null" || players[1].ballGroup == "null"){
-            this.AsignBallGroup(thisTurn); // asign the player to the group of the first potted ball (striped or solid)
-            this.DeactivatePottedBalls(thisTurn);
-        }
-        //if the table is 'closed'
+        //if the player potted a ball
         else{
-            this.DeactivatePottedBalls(thisTurn);
+            checkPottedBalls = true;
         }
     }
 
-    this.currentTurnNumber++;
-    turnHistoryData.push(new GameTurnData()); //Create a new object to register turn data
+    if (checkPottedBalls == true)
+        this.CheckPottedBalls();
+
+    if (createNewTurn == true){
+        this.currentTurnNumber++;
+        turnHistoryData.push(new GameTurnData()); //Create a new object to register turn data
+    }
 }
 
-GameController.prototype.DeactivatePottedBalls = function (turn){
+GameController.prototype.CheckPottedBalls = function(){
+    var tempBallsPotted = this.currentTurn.GetBallsPotted();
 
-    var tempBallsPotted = turn.GetBallsPotted();
+    if (players[0].ballGroup == "null" || players[1].ballGroup == "null")
+        this.AsignBallGroup();
+
     for(var i = 0; i < tempBallsPotted.length; i++) {
+        if (tempBallsPotted[i].isPotted == true)
+            continue;
+
+        tempBallsPotted[i].isPotted = true;
+
         if (tempBallsPotted[i].name == "whiteball"){
             tempBallsPotted[i].Reset();
             continue;
         }
+        if (tempBallsPotted[i].name == "blackball"){
+            console.log(this.currentPlayer + " lost");
+            continue;
+        }
 
-        tempBallsPotted[i].isPotted = true;
-
+        //Add potted ball icons to UI
         if (tempBallsPotted[i].ballGroup == players[0].ballGroup){
             if (tempBallsPotted[i].ballGroup == "solid"){
                 this.PottedLeftSolid();
@@ -170,7 +187,6 @@ GameController.prototype.DeactivatePottedBalls = function (turn){
             }
         }
     }
-
 }
 
 GameController.prototype.GetCurrentTurn = function(){
@@ -178,12 +194,24 @@ GameController.prototype.GetCurrentTurn = function(){
 }
 
 GameController.prototype.NextPlayerTurn = function (){
-    this.currentPlayer = this.currentPlayer == 1 ? 2 : 1;
+    this.currentPlayer = this.currentTurn.currentPlayer == 1 ? 2 : 1;
+
+    if(this.currentPlayer == 1) {
+        document.getElementById('arrow-right').style.borderRightColor = 'black';
+        document.getElementById('arrow-left').style.borderLeftColor = 'yellow';
+    }
+    else{
+        document.getElementById('arrow-right').style.borderRightColor = 'yellow';
+        document.getElementById('arrow-left').style.borderLeftColor = 'black';
+    }
 }
 
-GameController.prototype.AsignBallGroup = function(turn){
-    var ballsPotted = turn.GetBallsPotted();
-    if (turn.currentPlayer == 1){
+GameController.prototype.AsignBallGroup = function(){
+    var ballsPotted = this.currentTurn.GetBallsPotted();
+
+    //if the first ball is the whiteball or the blackball
+
+    if (this.currentTurn.currentPlayer == 1){
         players[0].ballGroup = ballsPotted[0].ballGroup;
         players[1].ballGroup = players[0].ballGroup == "striped" ? "solid" : "striped";
     }

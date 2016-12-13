@@ -58,7 +58,7 @@ Ball.prototype.OutOfBounds = function(){
 
     //Left border
     if (this.ball.position.x < -22){
-        if ((this.ball.position.z > 0.8 && this.ball.position.z < 40.2) || (this.ball.position.z > -40.7 && this.ball.position.z < -1.7)){
+        if ((this.ball.position.z > 0.9 && this.ball.position.z < 40.1) || (this.ball.position.z > -40.6 && this.ball.position.z < -1.6)){
             if (this.direction.x < 0)
                 this.direction.x *= -1; //right
             this.ball.speed *= 0.75;
@@ -68,7 +68,7 @@ Ball.prototype.OutOfBounds = function(){
     }
     //Right border
     if (this.ball.position.x > 22){
-        if ((this.ball.position.z > 0.8 && this.ball.position.z < 40.2) || (this.ball.position.z > -40.7 && this.ball.position.z < -1.7)){
+        if ((this.ball.position.z > 0.9 && this.ball.position.z < 40.1) || (this.ball.position.z > -40.6 && this.ball.position.z < -1.6)){
             if (this.direction.x > 0)
                 this.direction.x *= -1; //left
             this.ball.speed *= 0.75;
@@ -79,7 +79,7 @@ Ball.prototype.OutOfBounds = function(){
 
     //Top border
     if (this.ball.position.z < -41.1){
-        if (this.ball.position.x > -21.2 && this.ball.position.x < 20.8){
+        if (this.ball.position.x > -21.1 && this.ball.position.x < 20.7){
             if (this.direction.z < 0)
                 this.direction.z *= -1; //down
             this.ball.speed *= 0.75;
@@ -90,7 +90,7 @@ Ball.prototype.OutOfBounds = function(){
 
     //Bottom border
     if (this.ball.position.z > 40.6){
-        if (this.ball.position.x > -21.2 && this.ball.position.x < 20.8){
+        if (this.ball.position.x > -21.1 && this.ball.position.x < 20.7){
             if (this.direction.z > 0)
                 this.direction.z *= -1; //up
             this.ball.speed *= 0.75;
@@ -102,5 +102,6 @@ Ball.prototype.OutOfBounds = function(){
     //Ball potted
     gameController.GetCurrentTurn().BallPotted(this);
     this.ball.speed = 0;
+    this.ball.position.set(0,-10,0);
     //scene.remove(ball.ball);
 }

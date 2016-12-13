@@ -109,12 +109,12 @@
     function CalcPhysics(clockDeltaTime) {
         //for each ball
         for (i = 0; i < balls.length; i++) {
-            //for each other ball
             if (balls[i].ball.speed <= 0)
                 continue;
 
             var ballSender = balls[i];
 
+            //for each other ball
             for (x = 0; x < balls.length; x++) {
                 if (balls[i].name == balls[x].name)
                     continue;

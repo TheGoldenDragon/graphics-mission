@@ -13,7 +13,7 @@ function GameTurnData(){
     ballsCollided = [];
     ballsPotted = [];
 
-    console.log("new");
+    console.log("-----------------new-------------------");
 
     //1 of meer ballen met breakshot erin, speler 1 mag kiezen
     //anders mag speler 2 kiezen
@@ -31,7 +31,7 @@ function GameTurnData(){
 }
 
 GameTurnData.prototype.BallHit = function (sender, receiver){
-    var info = { sender: sender.name, receiver: receiver.name}
+    var info = { sender: sender, receiver: receiver}
     ballsCollided.push(info);
 }
 
