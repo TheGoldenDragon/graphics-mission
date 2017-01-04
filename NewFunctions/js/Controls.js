@@ -14,30 +14,6 @@ function OnKeyDown(event) {
             cue.position.z += 0.22;
             document.getElementById('speedmeter').style.width = shotspeed * 5 + 'px';
             break;
-        case 37:
-            whiteball.direction.x = -1; //down
-            whiteball.direction.y = 0;
-            whiteball.direction.z = 0;
-            whiteball.ball.speed = 90;
-            break;
-        case 38:
-            whiteball.direction.x = 0;
-            whiteball.direction.y = 0;
-            whiteball.direction.z = -1; //up
-            whiteball.ball.speed = 90;
-            break;
-        case 39:
-            whiteball.direction.x = 1; //right
-            whiteball.direction.y = 0;
-            whiteball.direction.z = 0;
-            whiteball.ball.speed = 90;
-            break;
-        case 40:
-            whiteball.direction.x = 0;
-            whiteball.direction.y = 0;
-            whiteball.direction.z = 1; //left
-            whiteball.ball.speed = 90;
-            break;
     }
 }
 
